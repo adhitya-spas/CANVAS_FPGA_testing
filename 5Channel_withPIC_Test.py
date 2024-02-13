@@ -135,10 +135,10 @@ test3 = channels3_td[0:num_samples]
 test4 = channels4_td[0:num_samples]
 
 #initialize serial ports
-pic_ser = serial.Serial("COM6",115200)
-pic_ser1 = serial.Serial("COM7",115200)
+pic_ser = serial.Serial("COM4",115200)
+pic_ser1 = serial.Serial("COM10",115200)
 pic_ser2 = serial.Serial("COM9",115200)
-FPGA_ser = serial.Serial("COM8",115200) #Uncomment later
+FPGA_ser = serial.Serial("COM7",115200) #Uncomment later
 
 # testmode = ADC_And_Rotation
 
