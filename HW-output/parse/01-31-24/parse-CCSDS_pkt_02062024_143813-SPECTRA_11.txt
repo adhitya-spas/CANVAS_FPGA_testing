@@ -1,0 +1,15 @@
+SPECTRA 11
+
+Header:
+Packet Version Number: 0000 = 0 = 0000
+Packet Type: 0000 = 0 = 0000
+Secondary Header Flag: 0001 = 1 = 0001
+App ID: 001010110000 = 688 = 02B0
+Sequence Flags: 0011 = 3 = 0003
+Sequence Count: 0000000000001010 = 10 = 000A
+Packet Data Length: 0000001000000001 = 513 = 0201
+Coarse Time: 11000000111111111110111000001110 = 3237998094
+Fine_Time: 0000010100100111 = 1319 = 0527
+
+HEX
+(1)	(2)	(3)	(4)	(5)
