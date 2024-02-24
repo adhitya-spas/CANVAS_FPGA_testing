@@ -4,7 +4,7 @@ import numpy as np
 import random
 from readFPGA import twos_complement_to_hex, proper_twos_complement
 amp = 0.9*pow(2,15)   # V
-freq = 23000  # Hz
+freq = 0  # Hz
 phase = 0   # deg
 pi = 3.14
 

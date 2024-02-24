@@ -100,6 +100,8 @@ if fromFile:
     file3 = inputs+'signal_23000.txt'
     
     file4 = inputs+amp+"_amp_"+freq4+'.txt'
+    
+    file_only_0 = inputs+'signal_0.txt'
 
     # file0 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
     # file1 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
@@ -107,11 +109,11 @@ if fromFile:
     # file3 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
     # file4 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
 
-    channels0_td = read_FPGA_input(file0,signed=True,show_plots=False)
+    channels0_td = read_FPGA_input(file_only_0,signed=True,show_plots=False)
     channels1_td = read_FPGA_input(file1,signed=True,show_plots=False)
     channels2_td = read_FPGA_input(file2,signed=True,show_plots=False)
-    channels3_td = read_FPGA_input(file3,signed=True,show_plots=False)
-    channels4_td = read_FPGA_input(file4,signed=True,show_plots=False)
+    channels3_td = read_FPGA_input(file,signed=True,show_plots=False)
+    channels4_td = read_FPGA_input(file_only_0,signed=True,show_plots=False)
 
 else:
     channels0_td = test_signal(fs, sample_len, signal_freq0, amp0, shift=shift0, channel_num=0, show_plots=False, save_output='both')

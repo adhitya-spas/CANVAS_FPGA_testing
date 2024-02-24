@@ -17,7 +17,7 @@ import numpy as np
 from numpy import random
 from datetime import datetime
 
-# Importing custom libraries
+# Importing custom libraries]
 from fpga_main_function import run_fpga_output, parse_these_packets, compare_these_packets
 
 # Creating a log file
@@ -40,7 +40,8 @@ if fromFile:
     freq3 = "23khz" #"24khz" # broken
     freq4 = "33khz"
 
-    file0 = inputs+amp+"_amp_"+freq0+'.txt'
+    #file0 = inputs+amp+"_amp_"+freq0+'.txt'
+    file0 = inputs+'signal_0.txt'
     file1 = inputs+amp+"_amp_"+freq1+'.txt'
     file2 = inputs+amp+"_amp_"+freq2+'.txt'
     file3 = inputs+'signal_23000.txt'   
@@ -54,8 +55,15 @@ else:
 # Opening the pre determined combo file
 file_combo = open('allch_combo.txt').read().splitlines()
 
+#initialize serial ports
+pic_ser = serial.Serial("COM4",115200)
+pic_ser1 = serial.Serial("COM10",115200)
+pic_ser2 = serial.Serial("COM9",115200)
+FPGA_ser = serial.Serial("COM7",115200) #Uncomment later
+
 
 for iteration in range(0,len(file_combo)):
+    time.sleep(5)
     logfile.write(" => Iteration "+str(iteration))
     line = file_combo[iteration].split("\t")
     file_input = []
@@ -78,8 +86,8 @@ for iteration in range(0,len(file_combo)):
     date_time = now.strftime("_%m%d%Y_%H%M%S")
     
     # RUnning FPGA files
-    run_fpga_output(file_input, date_time)
-    parse_these_packets(date_time)
-    compare_these_packets(date_time)
+    run_fpga_output(file_input, date_time, pic_ser,pic_ser1,pic_ser2,FPGA_ser)
+    parse_these_packets(file_input, date_time)
+    # compare_these_packets(date_time)
     
 
