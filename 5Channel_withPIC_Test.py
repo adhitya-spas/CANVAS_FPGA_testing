@@ -103,23 +103,30 @@ if fromFile:
     
     file_only_0 = inputs+'signal_0.txt'
 
+    david_test_no = "10"
+    david_file0 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_1c.txt"
+    david_file1 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_2c.txt"
+    david_file2 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_3c.txt"
+    david_file3 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_4c.txt"
+    david_file4 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_5c.txt"
+
     # file0 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
     # file1 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
     # file2 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
     # file3 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
     # file4 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
 
-    channels0_td = read_FPGA_input(file_only_0,signed=True,show_plots=False)
-    channels1_td = read_FPGA_input(file1,signed=True,show_plots=False)
-    channels2_td = read_FPGA_input(file2,signed=True,show_plots=False)
-    channels3_td = read_FPGA_input(file,signed=True,show_plots=False)
-    channels4_td = read_FPGA_input(file_only_0,signed=True,show_plots=False)
+    channels0_td = read_FPGA_input(david_file0,signed=True,show_plots=False)
+    channels1_td = read_FPGA_input(david_file1,signed=True,show_plots=False)
+    channels2_td = read_FPGA_input(david_file2,signed=True,show_plots=False)
+    channels3_td = read_FPGA_input(david_file0,signed=True,show_plots=False)
+    channels4_td = read_FPGA_input(david_file4,signed=True,show_plots=False)
 
 else:
     channels0_td = test_signal(fs, sample_len, signal_freq0, amp0, shift=shift0, channel_num=0, show_plots=False, save_output='both')
     channels1_td = test_signal(fs, sample_len, signal_freq1, amp1, shift=shift1, channel_num=1, show_plots=False, save_output='both')
 if len(channels0_td) > 20480:
-    num_samples = 20480#int(len(channels0_td)) # 1024 previoiusly
+    num_samples = 65536 #int(len(channels0_td)) # 1024 previoiusly
 else:
     num_samples = int(len(channels0_td))
 print(num_samples)
@@ -137,9 +144,9 @@ test3 = channels3_td[0:num_samples]
 test4 = channels4_td[0:num_samples]
 
 #initialize serial ports
-pic_ser = serial.Serial("COM4",115200)
-pic_ser1 = serial.Serial("COM10",115200)
-pic_ser2 = serial.Serial("COM9",115200)
+pic_ser = serial.Serial("COM10",115200)
+pic_ser1 = serial.Serial("COM9",115200)
+pic_ser2 = serial.Serial("COM4",115200)
 FPGA_ser = serial.Serial("COM7",115200) #Uncomment later
 
 # testmode = ADC_And_Rotation
@@ -330,13 +337,13 @@ print("Packets saved")
 ##################### Parsing right after ########################
 
 # Define Input and Output Location
-outpath='HW-output/5-ch/01-31-24/read_all'
+outpath='HW-output/5-ch/dtest_'+david_test_no+'/read_all'
 input_filename = outpath+ 'CCSDS_pkt' + date_time + '_' + freq0[0:3] + freq1[0:3] + freq2[0:3] + freq3[0:3] + freq4[0:3] + '.txt'
 lines = open(input_filename).read().splitlines()
 cnt = 0
 now = datetime.now()
 # date_time = now.strftime("_%m%d%Y_%H%M%S")
-outpath='HW-output/parse/01-31-24/parse-'
+outpath='HW-output/parse/dtest_'+david_test_no+'/parse-'
 name = outpath+ 'CCSDS_pkt' + date_time
 
 # Looping till the end of the file - takes one line every iteration

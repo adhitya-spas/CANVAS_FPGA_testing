@@ -141,7 +141,7 @@ def readFPGA(ser, freq0, freq1, freq2, freq3, freq4, num_read = 1, readcon = 'no
             # now = datetime.now()
             # date_time = now.strftime("_%m%d%Y_%H%M%S")
             date_time = outpath[-16:]
-            outpath='HW-output/5-ch/01-31-24/read_all'
+            outpath='HW-output/5-ch/dtest_10/read_all'
             name = outpath+ 'CCSDS_pkt' + date_time + '_' + freq0[0:3] + freq1[0:3] + freq2[0:3] + freq3[0:3] + freq4[0:3]
             file = open(name +'.txt','w')
             if time_CCSDS == True:

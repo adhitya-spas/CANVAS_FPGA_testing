@@ -285,13 +285,13 @@ def parse_these_packets(file_input,date_time):
     freq4 = file_input[4][-10:-4]
 
     # Define Input and Output Location
-    outpath='HW-output/5-ch/01-31-24/read_all'
+    outpath='HW-output/5-ch/test_8/read_all'
     input_filename = outpath+ 'CCSDS_pkt' + date_time + '_' + freq0[0:3] + freq1[0:3] + freq2[0:3] + freq3[0:3] + freq4[0:3] + '.txt'
     lines = open(input_filename).read().splitlines()
     cnt = 0
     # now = datetime.now()
     # date_time = now.strftime("_%m%d%Y_%H%M%S")
-    outpath='HW-output/parse/01-31-24/parse-'
+    outpath='HW-output/parse/test_8/parse-'
     name = outpath+ 'CCSDS_pkt' + date_time
 
     # Looping till the end of the file - takes one line every iteration
@@ -357,7 +357,7 @@ def compare_these_packets(date_time):
         int1_vals.append([eval(i) for i in int1_list[:][j]])  # convert string to integer
     # print(df1[0:5])
 
-    df2 = pd.read_csv('HW-output/parse/01-31-24/parse-'+'CCSDS_pkt' + date_time+'-SPECTRA_'+str(1)+'.txt', skiprows=[0,1,2,3,4,5,6,7,8,9,10,11,12,13], sep="\t")
+    df2 = pd.read_csv('HW-output/parse/test_8/parse-'+'CCSDS_pkt' + date_time+'-SPECTRA_'+str(1)+'.txt', skiprows=[0,1,2,3,4,5,6,7,8,9,10,11,12,13], sep="\t")
     int2_list = df2.iloc[69:].values.tolist()       # convert specific range to list
     int2_vals = []
     for j in range(0,len(int2_list)):
@@ -376,9 +376,10 @@ def compare_these_packets(date_time):
     else:
         diff = np.subtract(int1_vals[0:size_val],int2_vals[0:size_val])
         bad_loc = np.argwhere(np.absolute(diff)>3)
+        file_readme = open('HW-output/parse/test_8/readme_'+str(date_time)+'.txt','w')
         for h in range(0,len(bad_loc)):
-            print("\nHere are the bad arrays (pos "+h+" )=> ",int1_vals[bad_loc[h][0]]," & ",int2_vals[bad_loc[h][0]],"\n")
-
+            file_readme.write("\nHere are the bad arrays (pos "+str(h)+" )=> "+str(int1_vals[bad_loc[h][0]])+" & "+str(int2_vals[bad_loc[h][0]])+"\n")
+        file_readme.close()
 ##################### Generate Model ########################
 def model_generation(file_input, date_time):
      
