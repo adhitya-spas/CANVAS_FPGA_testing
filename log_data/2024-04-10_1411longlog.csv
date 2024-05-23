@@ -1,0 +1,6 @@
+Long Term Testing Log File,,,-,2024-04-10_1411
+Time,,,,,Param,Channel 1,Channel 2,Channel 3,Channel 4,Channel 5,Message
+""
+2024-04-10_1411,,,,,FREQ,11100,11814,8648,32556,23936
+2024-04-10_1411,,,,,AMP,0.001,0.001,0.001,0.001,0.001
+2024-04-10_1411,,,,,PHASE,106,115,33,24,60

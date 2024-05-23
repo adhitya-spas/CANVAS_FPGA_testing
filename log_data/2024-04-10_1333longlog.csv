@@ -1,0 +1,7 @@
+Long Term Testing Log File,,,-,2024-04-10_1333
+Time,,,,,Param,Channel 1,Channel 2,Channel 3,Channel 4,Channel 5,Message
+""
+2024-04-10_1333,,,,,FREQ,29524,38369,23242,22205,41103
+2024-04-10_1333,,,,,AMP,2048,2048,32768,32768,2048
+2024-04-10_1333,,,,,PHASE,254,338,98,78,223
+2024-04-10_1334,,,,,,,,,,,SIGNAL GENERATORS ARE SETUP

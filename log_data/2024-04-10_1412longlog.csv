@@ -1,0 +1,14 @@
+Long Term Testing Log File,,,-,2024-04-10_1412
+Time,,,,,Param,Channel 1,Channel 2,Channel 3,Channel 4,Channel 5,Message
+""
+2024-04-10_1412,,,,,FREQ,26554,4057,16482,7685,22700
+2024-04-10_1412,,,,,AMP,0.004,0.004,0.004,0.004,0.004
+2024-04-10_1412,,,,,PHASE,105,70,67,90,89
+2024-04-10_1412,,,,,,,,,,,SIGNAL GENERATORS ARE SETUP
+2024-04-10_1412,,,,,,,,,,,PIC & FPGA Initialized - STARTING FPGA
+Time,,,,,Param,Channel 1,Channel 2,Channel 3,Channel 4,Channel 5,Message
+""
+2024-04-10_1414,,,,,FREQ,28250,41090,34842,15868,266
+2024-04-10_1414,,,,,AMP,0.004,0.004,0.004,0.004,0.004
+2024-04-10_1414,,,,,PHASE,16,132,31,146,157
+2024-04-10_1414,,,,,,,,,,,SIGNAL GENERATORS ARE SETUP
