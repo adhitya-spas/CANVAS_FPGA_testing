@@ -82,7 +82,7 @@ def run_fpga_output(file_input, date_time, pic_ser,pic_ser1,pic_ser2,FPGA_ser):
     channels3_td = read_FPGA_input(file_input[3],signed=True,show_plots=False)
     channels4_td = read_FPGA_input(file_input[4],signed=True,show_plots=False)
     
-    num_samples = 20480 
+    num_samples = 20480 # 65535 # 20480
 
     test0 = channels0_td[0:num_samples] 
     test1 = channels1_td[0:num_samples]
@@ -271,7 +271,7 @@ def run_fpga_output(file_input, date_time, pic_ser,pic_ser1,pic_ser2,FPGA_ser):
     freq2 = file_input[2][-10:-4]
     freq3 = file_input[3][-10:-4]
     freq4 = file_input[4][-10:-4]
-    vals = readFPGA(FPGA_ser, freq0, freq1, freq2, freq3, freq4,readcon=readcon,num_read=1,outpath=out_folder+'/5-ch'+'/verify'+'/'+amp+'FPGA-' + FPGA_rev + '_iter' + date_time , time_CCSDS=True, byte_type=2)
+    vals = readFPGA(FPGA_ser, freq0, freq1, freq2, freq3, freq4,readcon=readcon,num_read=1,outpath=out_folder+'/5-ch'+'/verify'+'/'+amp+'FPGA-' + FPGA_rev + '_iter' + date_time , time_CCSDS=True, byte_type=3)
     print("Packets saved")
     
 ##################### Parsing right after ########################
@@ -285,13 +285,13 @@ def parse_these_packets(file_input,date_time):
     freq4 = file_input[4][-10:-4]
 
     # Define Input and Output Location
-    outpath='HW-output/5-ch/test_8/read_all'
+    outpath='HW-output/5-ch/test_trs_rest/read_all'
     input_filename = outpath+ 'CCSDS_pkt' + date_time + '_' + freq0[0:3] + freq1[0:3] + freq2[0:3] + freq3[0:3] + freq4[0:3] + '.txt'
     lines = open(input_filename).read().splitlines()
     cnt = 0
     # now = datetime.now()
     # date_time = now.strftime("_%m%d%Y_%H%M%S")
-    outpath='HW-output/parse/test_8/parse-'
+    outpath='HW-output/parse/test_trs_rest/parse-'
     name = outpath+ 'CCSDS_pkt' + date_time
 
     # Looping till the end of the file - takes one line every iteration
@@ -350,14 +350,14 @@ def parse_these_packets(file_input,date_time):
 ##################### Comparing Files ########################
 def compare_these_packets(date_time):
     ## Comparing the model values with FPGA values
-    df1 = pd.read_csv('Spec_vals'+'.txt', skiprows=[0,1,2,3,4,5,6,7], sep="\t")
+    df1 = pd.read_csv('model_trs_rest/Spec_vals_'+date_time+'.txt', skiprows=[0,1,2,3,4,5,6,7], sep="\t")
     int1_list = df1.iloc[1342:].values.tolist()     # convert specific range to list
     int1_vals = []
     for j in range(0,len(int1_list)):
         int1_vals.append([eval(i) for i in int1_list[:][j]])  # convert string to integer
     # print(df1[0:5])
 
-    df2 = pd.read_csv('HW-output/parse/test_8/parse-'+'CCSDS_pkt' + date_time+'-SPECTRA_'+str(1)+'.txt', skiprows=[0,1,2,3,4,5,6,7,8,9,10,11,12,13], sep="\t")
+    df2 = pd.read_csv('HW-output/parse/test_trs_rest/parse-'+'CCSDS_pkt' + date_time+'-SPECTRA_'+str(1)+'.txt', skiprows=[0,1,2,3,4,5,6,7,8,9,10,11,12,13], sep="\t")
     int2_list = df2.iloc[69:].values.tolist()       # convert specific range to list
     int2_vals = []
     for j in range(0,len(int2_list)):
@@ -376,7 +376,7 @@ def compare_these_packets(date_time):
     else:
         diff = np.subtract(int1_vals[0:size_val],int2_vals[0:size_val])
         bad_loc = np.argwhere(np.absolute(diff)>3)
-        file_readme = open('HW-output/parse/test_8/readme_'+str(date_time)+'.txt','w')
+        file_readme = open('HW-output/parse/test_trs_rest/readme_'+str(date_time)+'.txt','w')
         for h in range(0,len(bad_loc)):
             file_readme.write("\nHere are the bad arrays (pos "+str(h)+" )=> "+str(int1_vals[bad_loc[h][0]])+" & "+str(int2_vals[bad_loc[h][0]])+"\n")
         file_readme.close()
@@ -412,7 +412,7 @@ def model_generation(file_input, date_time):
     channels3_td_pre = read_FPGA_input(file_input[3],signed=True,show_plots=False)
     channels4_td_pre = read_FPGA_input(file_input[4],signed=True,show_plots=False)
     
-    num_samples = 20480 #len(channels0_td_pre) #
+    num_samples = 20480 #65535 # 20480 #len(channels0_td_pre) #
     test0 = channels0_td_pre[0:num_samples]
     test1 = channels1_td_pre[0:num_samples]
     test2 = channels2_td_pre[0:num_samples]
@@ -599,7 +599,7 @@ def model_generation(file_input, date_time):
     freq4 = file_input[4][-10:-4]
     
     # STEP 8 ---- saving as meaningful data ----
-    file_spec = open('Spec_vals.txt','w')
+    file_spec = open('model_trs_rest/Spec_vals_'+date_time+'.txt','w')
     file_spec.write("SPECTRA "+"\n")
 
     file_spec.write("Channal Frequency "+"\n")
@@ -626,7 +626,7 @@ def model_generation(file_input, date_time):
 
     file_spec.close()
 
-    file_xspeca = open('Xspec_A_vals.txt','w')
+    file_xspeca = open('model_trs_rest/Xspec_A_vals_'+date_time+'.txt','w')
     file_xspeca.write("CROSS-SPECTRA A (Real) "+"\n")
     type = 'A'
 
@@ -661,7 +661,7 @@ def model_generation(file_input, date_time):
     file_xspeca.close()
 
     # Doing it again for 'B'
-    file_xspecb = open('Xspec_B_vals.txt','w')
+    file_xspecb = open('model_trs_rest/Xspec_B_vals_'+date_time+'.txt','w')
     file_xspecb.write("CROSS-SPECTRA B (Imaginary) "+"\n")
     type = 'B'
 

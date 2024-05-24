@@ -85,7 +85,7 @@ def readFPGA(ser, freq0, freq1, freq2, freq3, freq4, num_read = 1, readcon = 'no
         
     length,test_mode = read_header(ser)
     word_length = 12 #bytes
-
+    
     if test_mode==tx_packet_gen:
         print("tx_packet_gen")
         word_length = 4 #bytes
@@ -141,31 +141,71 @@ def readFPGA(ser, freq0, freq1, freq2, freq3, freq4, num_read = 1, readcon = 'no
             # now = datetime.now()
             # date_time = now.strftime("_%m%d%Y_%H%M%S")
             date_time = outpath[-16:]
-            outpath='HW-output/5-ch/dtest_10/read_all'
+            outpath='HW-output/5-ch/test_trs_rest/read_all'
+            # outpath='HW-output/5-ch/dtest_10/read_all'
             name = outpath+ 'CCSDS_pkt' + date_time + '_' + freq0[0:3] + freq1[0:3] + freq2[0:3] + freq3[0:3] + freq4[0:3]
-            file = open(name +'.txt','w')
+            #file = open(name +'.txt','w')
             if time_CCSDS == True:
-                print("Timing the Packets")
-                #file1 = open(name + '_spectra' + '.txt','w')
-                #spectra_cnt = -1
-                spectra_vals = np.zeros((words,5))
-                #j=0
-                for i in range(13000): # originally, 130000
-                    val = int.from_bytes(ser.read(2), 'big') # Create func that reads from port - create buffer to store and throws serial bytes in - 
-                    hex_val = format(np.int16(val) & 0xffff, '04X')
-                    match str(hex_val):
-                        case "BA11" | "FC1D" | "9BDC" | "CCCC":
-                            file.write(str(hex_val))
-                            file.write("\n")
-                        case _:
-                            file.write(str(hex_val))
-                            file.write("  ")
-                    # file.write(str(hex_val))
-                    #file.write(ser.read(2))
-                file.close()
+                if byte_type == 2:
+                    file = open(name +'.txt','w')
+                    print("Timing the Packets")
+                    #file1 = open(name + '_spectra' + '.txt','w')
+                    #spectra_cnt = -1
+                    spectra_vals = np.zeros((words,5))
+                    #j=0
+                    for i in range(13000): # originally, 130000
+                        val = int.from_bytes(ser.read(2), 'big') # Create func that reads from port - create buffer to store and throws serial bytes in - 
+                        hex_val = format(np.int16(val) & 0xffff, '04X')
+                        match str(hex_val):
+                            case "BA11" | "FC1D" | "9BDC" | "CCCC":
+                                file.write(str(hex_val))
+                                file.write("\n")
+                            case _:
+                                file.write(str(hex_val))
+                                file.write("  ")
+                        # file.write(str(hex_val))
+                        #file.write(ser.read(2))
+                    file.close()
                 # Printing spectra into seperate file
                 # file1.close()
+                else:
+                    file = open(name +'_pre.txt','w')
+                    print("Printing Raw")
+                    for i in range(13000): # originally, 130000
+                        val = int.from_bytes(ser.read(2), 'big') # Create func that reads from port - create buffer to store and throws serial bytes in - 
+                        hex_val = format(np.int16(val) & 0xffff, '04X')
+                        file.write(str(hex_val))
+                        file.write("  ")
+                    file.close()
+                    # Indenting it right
+                    lines = open(name +'_pre.txt').read().splitlines()
+                    file = open(name +'.txt','w')
+                    flag_changed = 0
+                    for ele in lines:
+                        new_ele = ele.split()
+                        for e in range(len(new_ele)):
+                            if flag_changed == 0:
+                                if new_ele[e] == "1ACF" and new_ele[e+1] == "FC1D":
+                                    #print("Yes Yes")
+                                    new_ele.insert(e,"break")
+                                    e+=3
+                                    new_ele.insert(e,"break")
+                                    flag_changed = e
+                            else:
+                                if flag_changed == e:
+                                    flag_changed=0
+                    for z in new_ele:
+                        if z == "break":
+                            file.write("\n")
+                            continue
+                        file.write(str(z))
+                        file.write("  ")
+                    print(new_ele)
+                    file.close()
+                    
+                    
             else:
+                file = open(name +'.txt','w')
                 if byte_type == 2:
                     #file1 = open(name + '_spectra' + '.txt','w')
                     spectra_cnt = -1

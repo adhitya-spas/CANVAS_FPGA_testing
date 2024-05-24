@@ -21,7 +21,7 @@ from datetime import datetime
 from fpga_main_function import run_fpga_output, parse_these_packets, compare_these_packets, model_generation
 
 # Creating a log file
-logfile = open('test_log.txt','w')
+logfile = open('test_log_trs_rest.txt','w')
 logfile.write("Logging combinations\n")
 
 #Generate input signal from file or aribitrarily
@@ -41,11 +41,11 @@ if fromFile:
     freq4 = "33khz"
 
     #file0 = inputs+amp+"_amp_"+freq0+'.txt'
-    file0 = inputs+amp+"_amp_"+freq0+'.txt'
-    file1 = inputs+amp+"_amp_"+freq1+'.txt'
-    file2 = inputs+amp+"_amp_"+freq2+'.txt'
-    file3 = inputs+"signal_23000"+'.txt'
-    file4 = inputs+amp+"_amp_"+freq4+'.txt'
+    file0 = inputs+'signal_512.txt'
+    file1 = inputs+'signal_3000.txt'
+    file2 = inputs+'signal_10000.txt'
+    file3 = inputs+'signal_23000.txt'
+    file4 = inputs+'signal_33000.txt'
     file5 = inputs+"signal_512"+'_1.txt'
     file6 = inputs+"signal_512"+'_2.txt'
     file7 = inputs+"signal_512"+'_3.txt'
@@ -73,12 +73,12 @@ else:
     
     
 # Opening the pre determined combo file
-file_combo = open('allch_combotrs_from19.txt').read().splitlines()
+file_combo = open('allch_combotrs_rest.txt').read().splitlines()
 
 #initialize serial ports
-pic_ser = serial.Serial("COM4",115200)
-pic_ser1 = serial.Serial("COM10",115200)
-pic_ser2 = serial.Serial("COM9",115200)
+pic_ser = serial.Serial("COM5",115200)
+pic_ser1 = serial.Serial("COM3",115200)
+pic_ser2 = serial.Serial("COM4",115200)
 FPGA_ser = serial.Serial("COM7",115200) #Uncomment later
 
 
@@ -169,6 +169,9 @@ for iteration in range(0,len(file_combo)):
     run_fpga_output(file_input, date_time, pic_ser,pic_ser1,pic_ser2,FPGA_ser)
     parse_these_packets(file_input, date_time)
     model_generation(file_input,date_time)
-    compare_these_packets(date_time)
+    try:
+        compare_these_packets(date_time)
+    except:
+        logfile.write("\n Comparison error \n ")
     
 

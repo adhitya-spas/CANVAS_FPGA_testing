@@ -91,42 +91,48 @@ if fromFile:
     freq3 = "24khz" # broken
     freq4 = "33khz"
 
-    file0 = inputs+amp+"_amp_"+freq0+'.txt'
+    # file0 = inputs+'signal_512.txt'
 
-    file1 = inputs+amp+"_amp_"+freq1+'.txt'
+    # file1 = inputs+'signal_3000.txt'
     
-    file2 = inputs+amp+"_amp_"+freq2+'.txt'
+    # file2 = inputs+'signal_10000.txt'
     
-    file3 = inputs+'signal_23000.txt'
+    # file3 = inputs+'signal_23000.txt'
     
-    file4 = inputs+amp+"_amp_"+freq4+'.txt'
+    # file4 = inputs+'signal_33000.txt'
     
-    file_only_0 = inputs+'signal_0.txt'
+    # file_only_0 = inputs+'signal_0.txt'
+    
+    file0 = 'C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/Test_WN/' + 'signal_1.txt'
+    file1 = 'C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/Test_WN/' +'signal_2.txt'
+    file2 ='C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/Test_WN/' + 'signal_3.txt'
+    file3 = 'C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/Test_WN/' + 'signal_4.txt'
+    file4 = 'C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/Test_WN/' + 'signal_5.txt'
 
-    david_test_no = "10"
-    david_file0 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_1c.txt"
-    david_file1 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_2c.txt"
-    david_file2 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_3c.txt"
-    david_file3 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_4c.txt"
-    david_file4 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_5c.txt"
+    # david_test_no = "10"
+    # file0 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/8800_til"+"/signal_1.txt"
+    # file1 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/8800_til"+"/signal_2.txt"
+    # file2 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/8800_til"+"/signal_3.txt"
+    # file3 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/8800_til"+"/signal_4.txt"
+    # file4 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/Inputs/8800_til"+"/signal_5.txt"
 
-    # file0 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
-    # file1 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
-    # file2 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
-    # file3 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
-    # file4 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
+    # file0 = "C:\Users\culair\CANVAS_git\CANVAS_FPGA_testing\ests_for_david\est_live1\signal_1.txt"
+    # file1 = "C:\Users\culair\CANVAS_git\CANVAS_FPGA_testing\ests_for_david\est_live1\signal_2.txt"
+    # file2 = "C:\Users\culair\CANVAS_git\CANVAS_FPGA_testing\ests_for_david\est_live1\signal_3.txt"
+    # file3 = "C:\Users\culair\CANVAS_git\CANVAS_FPGA_testing\ests_for_david\est_live1\signal_4.txt"
+    # file4 = "C:\Users\culair\CANVAS_git\CANVAS_FPGA_testing\ests_for_david\est_live1\signal_5.txt"
 
-    channels0_td = read_FPGA_input(david_file0,signed=True,show_plots=False)
-    channels1_td = read_FPGA_input(david_file1,signed=True,show_plots=False)
-    channels2_td = read_FPGA_input(david_file2,signed=True,show_plots=False)
-    channels3_td = read_FPGA_input(david_file0,signed=True,show_plots=False)
-    channels4_td = read_FPGA_input(david_file4,signed=True,show_plots=False)
+    channels0_td = read_FPGA_input(file0,signed=True,show_plots=False)
+    channels1_td = read_FPGA_input(file1,signed=True,show_plots=False)
+    channels2_td = read_FPGA_input(file2,signed=True,show_plots=False)
+    channels3_td = read_FPGA_input(file3,signed=True,show_plots=False)
+    channels4_td = read_FPGA_input(file4,signed=True,show_plots=False)
 
-else:
-    channels0_td = test_signal(fs, sample_len, signal_freq0, amp0, shift=shift0, channel_num=0, show_plots=False, save_output='both')
-    channels1_td = test_signal(fs, sample_len, signal_freq1, amp1, shift=shift1, channel_num=1, show_plots=False, save_output='both')
+# else:
+#     channels0_td = test_signal(fs, sample_len, signal_freq0, amp0, shift=shift0, channel_num=0, show_plots=False, save_output='both')
+#     channels1_td = test_signal(fs, sample_len, signal_freq1, amp1, shift=shift1, channel_num=1, show_plots=False, save_output='both')
 if len(channels0_td) > 20480:
-    num_samples = 65536 #int(len(channels0_td)) # 1024 previoiusly
+    num_samples = 20480 #int(len(channels0_td)) # 1024 previoiusly
 else:
     num_samples = int(len(channels0_td))
 print(num_samples)
@@ -144,16 +150,16 @@ test3 = channels3_td[0:num_samples]
 test4 = channels4_td[0:num_samples]
 
 #initialize serial ports
-pic_ser = serial.Serial("COM10",115200)
-pic_ser1 = serial.Serial("COM9",115200)
+pic_ser = serial.Serial("COM5",115200)
+pic_ser1 = serial.Serial("COM3",115200)
 pic_ser2 = serial.Serial("COM4",115200)
-FPGA_ser = serial.Serial("COM7",115200) #Uncomment later
+#FPGA_ser = serial.Serial("COM7",115200) #Uncomment later
 
 # testmode = ADC_And_Rotation
 
 #reset FPGA
-Siesta_cmd = b'\xC0\x51\xE5\x7A'
-ser_write(FPGA_ser,Sync_Pat+Siesta_cmd,False)
+#Siesta_cmd = b'\xC0\x51\xE5\x7A'
+#ser_write(FPGA_ser,Sync_Pat+Siesta_cmd,False)
 
 #reset PIC
 ser_write(pic_ser,ResetPIC+lf,True)
@@ -169,9 +175,11 @@ time.sleep(1)
 response_check(pic_ser2,initiated)
 print('PIC2 Reset')
 
-FPGA_ser.close()  #Uncomment later
-time.sleep(0.5)   #Uncomment later
-FPGA_ser.open()   #Uncomment later
+#FPGA_ser.close()  #Uncomment later
+#time.sleep(0.5)   #Uncomment later
+#FPGA_ser.open()   #Uncomment later
+
+#num_samples = 1000
 
 #response_check(pic_ser,ack)
 #print('Reset Received')
@@ -327,7 +335,7 @@ date_time = now.strftime("_%m%d%Y_%H%M%S")
 # vals = readFPGA(FPGA_ser,readcon=readcon,num_read=num,outpath=out_folder+'/5-ch'+'/verify'+'/'+amp+'FPGA-' + FPGA_rev + amp + phase + f + '_iter' + date_time)
 ############ For timing the Packets
 
-vals = readFPGA(FPGA_ser, freq0, freq1, freq2, freq3, freq4,readcon=readcon,num_read=num,outpath=out_folder+'/5-ch'+'/verify'+'/'+amp+'FPGA-' + FPGA_rev + '_iter' + date_time , time_CCSDS=True, byte_type=2)
+vals = readFPGA(FPGA_ser, freq0, freq1, freq2, freq3, freq4,readcon=readcon,num_read=num,outpath=out_folder+'/5-ch'+'/verify'+'/'+amp+'FPGA-' + FPGA_rev + '_iter' + date_time , time_CCSDS=True, byte_type=3)
 print("Packets saved")
 
 # outpath='HW-output/5-ch/read_all'        
@@ -337,68 +345,82 @@ print("Packets saved")
 ##################### Parsing right after ########################
 
 # Define Input and Output Location
-outpath='HW-output/5-ch/dtest_'+david_test_no+'/read_all'
+outpath='HW-output/5-ch/d_test_5_16'+'/read_all'
 input_filename = outpath+ 'CCSDS_pkt' + date_time + '_' + freq0[0:3] + freq1[0:3] + freq2[0:3] + freq3[0:3] + freq4[0:3] + '.txt'
 lines = open(input_filename).read().splitlines()
 cnt = 0
 now = datetime.now()
 # date_time = now.strftime("_%m%d%Y_%H%M%S")
-outpath='HW-output/parse/dtest_'+david_test_no+'/parse-'
+outpath='HW-output/parse/d_test_5_16'+'/parse-'
 name = outpath+ 'CCSDS_pkt' + date_time
 
-# Looping till the end of the file - takes one line every iteration
-for pkt in lines:
-    # Checks for the Spectra header
-    if pkt[:4] == '0AB0':
-        print("Spectra")
-        cnt+=1
-        file_spec = open(name +'-SPECTRA_'+str(cnt)+'.txt','w')
-        spectra_header = pkt[:34]
-        spectra_vals = pkt[34:]
-        file_spec.write("SPECTRA "+str(cnt)+"\n")
-        read_headerCCSDS(file_spec, spectra_header)
-        try:
-            read_spectravals(file_spec, spectra_vals)
-        except Exception:
-            print("Incomplete")
-            pass
-        file_spec.close()
-    # Checks for the Cross-Spectra A header
-    elif pkt[:4] == '0AB4':
-        print("Cross Spectra A")
-        file_xspeca = open(name +'-XSPEC-A_'+str(cnt)+'.txt','w')
-        xspeca_header = pkt[:34]
-        xspeca_vals = pkt[34:]
-        file_xspeca.write("CROSS-SPECTRA A "+str(cnt)+"\n")
-        read_headerCCSDS(file_xspeca, xspeca_header)
-        try:
-            read_xspectravals(file_xspeca, xspeca_vals, 'A')
-        except Exception:
-            print("Incomplete")
-            pass
-        # try:
-        #     read_xspectravals(file_xspeca, xspeca_vals, 'A')
-        # except Exception:
-        #     print("Incomplete")
-        #     pass
-        file_xspeca.close()
-    # Checks for the Cross-Spectra B header
-    elif pkt[:4] == '0AB5':
-        print("Cross Spectra B")
-        file_xspecb = open(name +'-XSPEC-B_'+str(cnt)+'.txt','w')
-        xspecb_header = pkt[:34]
-        xspecb_vals = pkt[34:]
-        file_xspecb.write("CROSS-SPECTRA B "+str(cnt)+"\n")
-        read_headerCCSDS(file_xspecb, xspecb_header)
-        try:
-            read_xspectravals(file_xspecb, xspecb_vals, 'B')
-        except Exception:
-            print("Incomplete")
-            pass
-        file_xspecb.close()
-    # Checks for the Sync Pattern
-    elif pkt == '1ACF  FC1D':
-        print("Sync Pattern")
+arrange=0
+
+if arrange == 1:
+    print("PARSING THE RAW PACKET")
+    file_spec = open(name +'-SPECTRA_'+str(cnt)+'.txt','w')
+    new_line = lines[0].split("  ")
+    for ind in range(len(new_line)):
+        if new_line[ind] == 'BA11':
+            new_line.insert(ind,'\n')
+        elif new_line[ind] == '1ACF' and new_line[ind] == 'FC1D':
+            new_line.insert(ind,'\n')
+    
+
+else:
+    # Looping till the end of the file - takes one line every iteration
+    for pkt in lines:
+        # Checks for the Spectra header
+        if pkt[:4] == '0AB0':
+            print("Spectra")
+            cnt+=1
+            file_spec = open(name +'-SPECTRA_'+str(cnt)+'.txt','w')
+            spectra_header = pkt[:34]
+            spectra_vals = pkt[34:]
+            file_spec.write("SPECTRA "+str(cnt)+"\n")
+            read_headerCCSDS(file_spec, spectra_header)
+            try:
+                read_spectravals(file_spec, spectra_vals)
+            except Exception:
+                print("Incomplete")
+                pass
+            file_spec.close()
+        # Checks for the Cross-Spectra A header
+        elif pkt[:4] == '0AB4':
+            print("Cross Spectra A")
+            file_xspeca = open(name +'-XSPEC-A_'+str(cnt)+'.txt','w')
+            xspeca_header = pkt[:34]
+            xspeca_vals = pkt[34:]
+            file_xspeca.write("CROSS-SPECTRA A "+str(cnt)+"\n")
+            read_headerCCSDS(file_xspeca, xspeca_header)
+            try:
+                read_xspectravals(file_xspeca, xspeca_vals, 'A')
+            except Exception:
+                print("Incomplete")
+                pass
+            # try:
+            #     read_xspectravals(file_xspeca, xspeca_vals, 'A')
+            # except Exception:
+            #     print("Incomplete")
+            #     pass
+            file_xspeca.close()
+        # Checks for the Cross-Spectra B header
+        elif pkt[:4] == '0AB5':
+            print("Cross Spectra B")
+            file_xspecb = open(name +'-XSPEC-B_'+str(cnt)+'.txt','w')
+            xspecb_header = pkt[:34]
+            xspecb_vals = pkt[34:]
+            file_xspecb.write("CROSS-SPECTRA B "+str(cnt)+"\n")
+            read_headerCCSDS(file_xspecb, xspecb_header)
+            try:
+                read_xspectravals(file_xspecb, xspecb_vals, 'B')
+            except Exception:
+                print("Incomplete")
+                pass
+            file_xspecb.close()
+        # Checks for the Sync Pattern
+        elif pkt == '1ACF  FC1D':
+            print("Sync Pattern")
 # Prints done, cuz why not :)
 print("done")
 

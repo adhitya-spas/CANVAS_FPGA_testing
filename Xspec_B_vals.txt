@@ -1,10 +1,10 @@
 CROSS-SPECTRA B (Imaginary) 
 Channal Frequency 
-0 -> 0_HWUc
-1 -> 0_HWUc
-2 -> 0_HWUc
-3 -> 0_HWUc
-4 -> 0_HWUc
+0 -> al_512
+1 -> al_512
+2 -> al_512
+3 -> al_512
+4 -> al_512
 HEX
 (Bi01)	(Br02)	(Br03)	(Br04)	(Br12)	(Br13)	(Br14)	(Br23)	(Br24)	(B34)
 0000	0000	0000	0000	0000	0000	0000	0000	0000	0000
