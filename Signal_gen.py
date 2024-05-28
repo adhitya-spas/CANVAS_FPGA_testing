@@ -4,7 +4,7 @@ import numpy as np
 import random
 from readFPGA import twos_complement_to_hex, proper_twos_complement
 amp = 0.9*pow(2,15)   # V
-freq = 0  # Hz
+freq = 33000  # Hz
 phase = 0   # deg
 pi = 3.14
 
@@ -17,7 +17,7 @@ for time in t:
 
 # Add bit noise to generated signal
 x_random = []
-bit_noise = [0,1]
+bit_noise = [0,0]
 for a in x:
     x_random.append(a + random.choice(bit_noise))
 
@@ -26,10 +26,14 @@ x_hex = []
 for num in x_random:
     x_hex.append(proper_twos_complement(num))
 
+for c in range(len(x_hex)):
+    if(len(x_hex[c])>4):
+        x_hex[c] = 0000
+
 # Print into text file
 file_signal = open('Inputs/signal_'+str(freq)+'.txt','w')
 for b in x_hex:
     file_signal.write(str(b) + "\n")
 file_signal.close()
 
-print(x)
+# print(x)

@@ -44,23 +44,35 @@ n_acc = 256                 # number of FFTs to accummulate %James = 8
 inputs = 'Inputs/'
 amp = "hi"
 phase0 = "512hz"
-file0 = inputs+amp+"_amp_"+phase0+'.txt'
+# file0 = inputs+amp+"_amp_"+phase0+'.txt'
+file0 = inputs+'signal_512.txt'
 phase1 = "03khz"
-file1 = inputs+amp+"_amp_"+phase1+'.txt'
+# file1 = inputs+amp+"_amp_"+phase1+'.txt'
+file1 = inputs+'signal_3000.txt'
 phase2 = "10khz"
-file2 = inputs+amp+"_amp_"+phase2+'.txt'
+# file2 = inputs+amp+"_amp_"+phase2+'.txt'
+file2 = inputs+'signal_10000.txt'
 phase3 = "24khz" # broken
 #file3 = inputs+amp+"_amp_"+phase3+'.txt'
 file3 = inputs+'signal_23000.txt'
 phase4 = "33khz"
-file4 = inputs+amp+"_amp_"+phase4+'.txt'
+# file4 = inputs+amp+"_amp_"+phase4+'.txt'
+file4 = inputs+'signal_33000.txt'
+
+
+#file0 = "D:\CANVAS_work\CANVAS_git\CANVAS_FPGA_testing\Inputs\signal_1.txt"
+#file1 = "D:\CANVAS_work\CANVAS_git\CANVAS_FPGA_testing\Inputs\signal_2.txt"
+#file2 = "D:\CANVAS_work\CANVAS_git\CANVAS_FPGA_testing\Inputs\signal_3.txt"
+#file3 = "D:\CANVAS_work\CANVAS_git\CANVAS_FPGA_testing\Inputs\signal_4.txt"
+#file4 = "D:\CANVAS_work\CANVAS_git\CANVAS_FPGA_testing\Inputs\signal_5.txt"
+
 channels0_td_pre = read_FPGA_input(file0,signed=True,show_plots=False)
 channels1_td_pre = read_FPGA_input(file1,signed=True,show_plots=False)
 channels2_td_pre = read_FPGA_input(file2,signed=True,show_plots=False)
 channels3_td_pre = read_FPGA_input(file3,signed=True,show_plots=False)
 channels4_td_pre = read_FPGA_input(file4,signed=True,show_plots=False)
 
-num_samples = 20480 #len(channels0_td_pre) #
+num_samples = 20480 #len(channels0_td_pre) 
 test0 = channels0_td_pre[0:num_samples]
 test1 = channels1_td_pre[0:num_samples]
 test2 = channels2_td_pre[0:num_samples]
