@@ -8,6 +8,8 @@ import os
 import csv
 import random
 import numpy as np
+import matplotlib.pyplot as plt
+from datetime import timedelta
 
 # Third-party libraries
 import pyvisa
@@ -28,11 +30,18 @@ sine = "sine"
 
 # --------------------------------------------------------------------------------------------------
 ### MACROS for Testing (1 -> True, 0 -> False)
-FIXED_FREQ  = 0                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies
-FIXED_AMP   = 1                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude
-FIXED_PHASE = 0                 # Set to 1 if you want to set phase || Set to 0 if you want random phase
+FIXED_FREQ  = 0                 # Set to 1 if you want to set frequencies       || Set to 0 if you want random frequencies
+FIXED_AMP   = 1                 # Set to 1 if you want to set amplitude         || Set to 0 if you want random amplitude
+FIXED_PHASE = 0                 # Set to 1 if you want to set phase             || Set to 0 if you want random phase
 
-RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n" || Set to 0 if you want raw data
+RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n"  || Set to 0 if you want raw data
+
+STEP        = 1                 # Set to 1 to enable step transition            || Set to 0 to disable
+SMOOTH      = 0                 # Set to 1 to enable smooth transition          || Set to 0 to disable
+BACK_DOWN   = 1                 # Set to 1 to enable signal gen going back down || Set to 0 to disable
+LONG_TERM   = 1                 # Set to 1 to enable for a really long duration || Set to 0 to disable
+
+SAVE_PLOT   = 0                 # Set to 1 to enable saving the transition plot || Set to 0 to disable
 # --------------------------------------------------------------------------------------------------
 ### DEFINE Constants
 start_freq  = 192       # Hz
@@ -42,7 +51,7 @@ set_freq    = [512, 3000, 10000, 23000, 33000]     # [Ch1, Ch2, Ch3, Ch4, Ch5] |
 
 hi_amp      = 80* 10**-3     #Vpp    # max amplitude of VHDL sims (27345)
 mid_amp     = 10* 10**-3     #Vpp
-low_amp     = 4*  10**-3      #Vpp
+low_amp     = 4*  10**-3     #Vpp
 set_amp     = [low_amp, low_amp, low_amp, low_amp, low_amp]      # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED AMP, line 100
 
 start_phase = 0         # deg
@@ -50,16 +59,104 @@ end_phase   = 180       # deg
 step_phase  = 1         # deg
 set_phase   = [0, 0, 0, 0, 0]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED PHASE, line 110
 
+start_tr    = start_freq    # Hz    # For setting duration 
+stop_tr     = end_freq      # Hz
+
+if STEP:
+    step_time       = 10    # s
+    step_interval   = 1000  # (Skipping every _ freq)
+
+if SMOOTH:
+    smooth_time     = 1     # s
+    smooth_interval = 5     # (Skipping every _ freq)
+
+if LONG_TERM:               # Set how many days of generation
+    day     = 0 
+    hour    = 24
+    minute  = 0
+    second  = 0
+
 pic1_COM    = "COM4"
 pic2_COM    = "COM10"
 pic3_COM    = "COM9"
 FPGA_COM    = "COM3"
 
+dateString = time.strftime("%Y-%m-%d_%H%M")
+
+# --------------------------------------------------------------------------------------------------
+### Generate Signals for SMOOTH, STEP, BACK_DOWN and LONG_TERM
+
+if SMOOTH:
+    signal = np.arange(start_freq, end_freq, smooth_interval)
+    r_signal = np.repeat(signal,smooth_time)
+    time = [str(timedelta(seconds=s)) for s in list(range(len(r_signal)))]
+    if not SAVE_PLOT:
+        plt.plot(time, r_signal, label = "SMOOTH")
+        plt.xticks(np.linspace(0,len(time)-1, 5))
+        plt.title(f'Smooth Transition ({start_freq} to {end_freq})\n(Skipping {smooth_interval}Hz every {smooth_time}s)')
+        plt.xlabel('Time (HH:MM:SS)')
+        plt.ylabel('Frequency (Hz)')
+        plt.savefig("./log_data/" + dateString + "_smooth_plot.png", dpi= 300)
+
+if STEP:
+    signal = np.arange(start_freq, end_freq, step_interval)
+    r_signal= np.repeat(signal,step_time)
+    time = [str(timedelta(seconds=s)) for s in list(range(len(r_signal)))]
+    if not SAVE_PLOT:
+        plt.plot(time, r_signal, label = "STEP")
+        plt.xticks(np.linspace(0,len(time)-1, 5))
+        plt.title(f'Step Transition ({start_freq} to {end_freq})\n(Skipping {step_interval}Hz every {step_time}s)')
+        plt.xlabel('Time (HH:MM:SS)')
+        plt.ylabel('Frequency (Hz)')
+        plt.savefig("./log_data/" + dateString + "_step_plot.png", dpi= 300)
+
+    
+if BACK_DOWN:
+    f_signal = np.concatenate((r_signal,r_signal[::-1]))
+    time = [str(timedelta(seconds=s)) for s in list(range(len(f_signal)))]
+    if not SAVE_PLOT:
+        plt.plot(time, f_signal)
+        plt.xticks(np.linspace(0,len(time)-1, 5))
+        if STEP:
+            plt.title(f'Step Transition ({start_freq} to {end_freq} and back to {start_freq})\n(Skipping {step_interval}Hz every {step_time}s)')
+        elif SMOOTH:
+            plt.title(f'Smooth Transition ({start_freq} to {end_freq} and back to {start_freq})\n(Skipping {smooth_interval}Hz every {smooth_time}s)')
+        plt.xlabel('Time (HH:MM:SS)')
+        plt.ylabel('Frequency (Hz)')
+        plt.savefig("./log_data/" + dateString + "_back_plot.png", dpi= 300)
+
+if LONG_TERM:
+    # Generate time array
+    duration = timedelta(days=day, hours=hour, minutes=minute, seconds=second)
+    l_signal = r_signal
+    flag_up = 1
+    while True:
+        if flag_up == 1:
+            l_signal = np.concatenate((l_signal,r_signal[::-1]))
+            flag_up = 0
+        else:
+            l_signal = np.concatenate((l_signal,r_signal[::]))
+            flag_up = 1
+        if len(l_signal) >= duration.total_seconds():
+            break
+        else:
+            continue
+    time = [str(timedelta(seconds=s)) for s in list(range(len(l_signal)))]
+    if not SAVE_PLOT:
+        plt.plot(time[:int(duration.total_seconds())+1], l_signal[:int(duration.total_seconds())+1], label = "STEP")
+        plt.xticks(np.linspace(0,int(duration.total_seconds()), 5))
+        if STEP:
+            plt.title(f'Step Transition ({start_freq} to {end_freq} for {duration})\n(Skipping {step_interval}Hz every {step_time}s)')
+        elif SMOOTH:
+            plt.title(f'Smooth Transition ({start_freq} to {end_freq} for {duration})\n(Skipping {smooth_interval}Hz every {smooth_time}s)')
+        plt.xlabel('Time (HH:MM:SS)')
+        plt.ylabel('Frequency (Hz)')
+        plt.savefig("./log_data/" + dateString + "_long_Term_plot.png", dpi= 300)
+
 # --------------------------------------------------------------------------------------------------
 ### LOG FILE Initialization
 
 ## Making file name
-dateString = time.strftime("%Y-%m-%d_%H%M")
 filepath = "./log_data/" + dateString + "longlog.csv"
 
 ## Creating csv file - printing header
@@ -69,6 +166,7 @@ with open(filepath, 'a') as f_object:
 
 
 # --------------------------------------------------------------------------------------------------
+################################################# Add if condition for continuous freq
 while(True):
 
     ### Initializing Parameters: Frequency and Amplitude
