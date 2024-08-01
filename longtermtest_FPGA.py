@@ -77,9 +77,9 @@ OpcodeSetMatrix = b'\x7E\x57\x00\x00'
 def init_FPGA(FPGA_COM):
 
     #initialize serial ports
-    #pic_ser = serial.Serial(pic1_COM,115200)
-    #pic_ser1 = serial.Serial(pic2_COM,115200)
-    #pic_ser2 = serial.Serial(pic3_COM,115200)
+    pic_ser = serial.Serial(pic1_COM,115200)
+    pic_ser1 = serial.Serial(pic2_COM,115200)
+    pic_ser2 = serial.Serial(pic3_COM,115200)
     FPGA_ser = serial.Serial(FPGA_COM,115200) 
     return(FPGA_ser)
 
