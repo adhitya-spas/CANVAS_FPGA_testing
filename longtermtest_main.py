@@ -55,6 +55,7 @@ switch_count= 0         # A counter for FIXED_FREQ=2; when to switch between tes
 counter     = 0         # A counter for FIXED_FREQ=2; when to stop each set
 title_print = 0         # A check to print the title of the test set in logs
 amp_switch  = 0         # 0-> Low | 1-> Mid | 2-> High
+freq_switch = 0         # 0-> Ch 1 | 1-> Ch 2 | 2-> Ch 3 | 3-> Ch 4 | 4-> Ch 5 |
 
 # Change if communication error
 # pic1_COM    = "COM4"
@@ -79,12 +80,24 @@ with open(filepath, 'a') as f_object:
 while(True):
 
     if FIXED_AMP == 2:
-        if counter==0:
-            amp1 = set_amp[0]
-            amp2 = set_amp[1]
-            amp3 = set_amp[2]
-            amp4 = set_amp[3]
-            amp5 = set_amp[4]
+        if amp_switch==0:
+            amp1 = low_amp
+            amp2 = low_amp
+            amp3 = low_amp
+            amp4 = low_amp
+            amp5 = low_amp
+        elif amp_switch==1:
+            amp1 = mid_amp
+            amp2 = mid_amp
+            amp3 = mid_amp
+            amp4 = mid_amp
+            amp5 = mid_amp
+        elif amp_switch==2:
+            amp1 = hi_amp
+            amp2 = hi_amp
+            amp3 = hi_amp
+            amp4 = hi_amp
+            amp5 = hi_amp
 
     ### Transition between Different Frequency Changes
     if FIXED_FREQ == 2:
@@ -116,7 +129,7 @@ while(True):
             if title_print==0:
                 # Available frequencies (Hz)
                 freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()
-                
+                counter = 0
                 switch_time = 5     # Reducing switch time to get a good transition
                 
                 with open(filepath, 'a') as f_object:
@@ -124,19 +137,102 @@ while(True):
                     writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP FREQ and AMP: "+str(amp_switch)])
                 title_print=1
             
-            if counter< len(freq_list):                  # Change if you want more time for this
-                freq1 = set_freq[0]
-                freq2 = set_freq[1]
-                freq3 = set_freq[2]
-                freq4 = set_freq[3]
-                freq5 = set_freq[4]
+            if counter< len(freq_list):  
+                if freq_switch == 0:               
+                    freq1 = freq_list[counter]
+                    freq2 = set_freq[1]
+                    freq3 = set_freq[2]
+                    freq4 = set_freq[3]
+                    freq5 = set_freq[4]
+                elif freq_switch == 1:               
+                    freq1 = set_freq[0]
+                    freq2 = freq_list[counter]
+                    freq3 = set_freq[2]
+                    freq4 = set_freq[3]
+                    freq5 = set_freq[4]
+                elif freq_switch == 2:               
+                    freq1 = set_freq[0]
+                    freq2 = set_freq[1]
+                    freq3 = freq_list[counter]
+                    freq4 = set_freq[3]
+                    freq5 = set_freq[4]
+                elif freq_switch == 3:               
+                    freq1 = set_freq[0]
+                    freq2 = set_freq[1]
+                    freq3 = set_freq[2]
+                    freq4 = freq_list[counter]
+                    freq5 = set_freq[4]
+                elif freq_switch == 4:               
+                    freq1 = set_freq[0]
+                    freq2 = set_freq[1]
+                    freq3 = set_freq[2]
+                    freq4 = set_freq[3]
+                    freq5 = freq_list[counter]
+                counter+=1
             else:
                 counter=-1
                 amp_switch+=1
                 title_print=0
                 if amp_switch > 2:
-                    switch_count+=1
-                    amp_switch=0
+                    freq_switch+=1
+                    if freq_switch > 4:
+                        switch_count+=1
+                        amp_switch=0
+        # Next case is going down the freq ladder 
+        elif switch_count==1:
+            if title_print==0:
+                # Available frequencies (Hz)
+                freq_list = np.arange(start = end_freq, stop = start_freq, step = step_freq).tolist()
+                counter = 0
+                switch_time = 5     # Reducing switch time to get a good transition
+                
+                with open(filepath, 'a') as f_object:
+                    writer_object = csv.writer(f_object)
+                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP FREQ and AMP: "+str(amp_switch)])
+                title_print=1
+            
+            if counter< len(freq_list):  
+                if freq_switch == 0:               
+                    freq1 = freq_list[counter]
+                    freq2 = set_freq[1]
+                    freq3 = set_freq[2]
+                    freq4 = set_freq[3]
+                    freq5 = set_freq[4]
+                elif freq_switch == 1:               
+                    freq1 = set_freq[0]
+                    freq2 = freq_list[counter]
+                    freq3 = set_freq[2]
+                    freq4 = set_freq[3]
+                    freq5 = set_freq[4]
+                elif freq_switch == 2:               
+                    freq1 = set_freq[0]
+                    freq2 = set_freq[1]
+                    freq3 = freq_list[counter]
+                    freq4 = set_freq[3]
+                    freq5 = set_freq[4]
+                elif freq_switch == 3:               
+                    freq1 = set_freq[0]
+                    freq2 = set_freq[1]
+                    freq3 = set_freq[2]
+                    freq4 = freq_list[counter]
+                    freq5 = set_freq[4]
+                elif freq_switch == 4:               
+                    freq1 = set_freq[0]
+                    freq2 = set_freq[1]
+                    freq3 = set_freq[2]
+                    freq4 = set_freq[3]
+                    freq5 = freq_list[counter]
+                counter+=1
+            else:
+                counter=-1
+                amp_switch+=1
+                title_print=0
+                if amp_switch > 2:
+                    freq_switch+=1
+                    if freq_switch > 4:
+                        switch_count+=1
+                        amp_switch=0
+
         
 
         # Counter to change test sets
