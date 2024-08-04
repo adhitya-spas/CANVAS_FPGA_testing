@@ -28,8 +28,8 @@ sine = "sine"
 
 # --------------------------------------------------------------------------------------------------
 ### MACROS for Testing (1 -> True, 0 -> False)
-FIXED_FREQ  = 1                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change
-FIXED_AMP   = 1                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude
+FIXED_FREQ  = 2                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change
+FIXED_AMP   = 2                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude
 FIXED_PHASE = 0                 # Set to 1 if you want to set phase || Set to 0 if you want random phase
 
 RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n" || Set to 0 if you want raw data
