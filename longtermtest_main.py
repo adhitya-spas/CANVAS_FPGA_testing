@@ -57,6 +57,12 @@ title_print = 0         # A check to print the title of the test set in logs
 amp_switch  = 0         # 0-> Low | 1-> Mid | 2-> High
 freq_switch = 0         # 0-> Ch 1 | 1-> Ch 2 | 2-> Ch 3 | 3-> Ch 4 | 4-> Ch 5 |
 
+# Available frequencies (Hz)
+freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()
+
+# Frequencies in No-No list (Edge cases) (Hz)
+edge_freq = [192, 320, 448, 576, 704, 832, 960, 1088, 1216, 1344, 1472, 1600, 1728, 1856, 1984, 2112, 2240, 2368, 2496, 2752, 3008, 3264, 3520, 3776, 4032, 4288, 4544, 4800, 5056, 5568, 6080, 6592, 7104, 7616, 8128, 8640, 9152, 9664, 10688, 11712, 12736, 13760, 14784, 15808, 16832, 17856, 18880, 19904, 21952, 24000, 26048, 28096, 30144, 32192, 34240, 36288, 38336, 42432]
+
 # Change if communication error
 # pic1_COM    = "COM4"
 # pic2_COM    = "COM10"
@@ -124,117 +130,90 @@ while(True):
                     switch_count+=1
                     amp_switch=0
 
-        # Next case is going up the freq ladder 
-        elif switch_count==1:
+        # Second, run random frequencies for a while
+        elif switch_count==1:         
+            if title_print==0:
+                with open(filepath, 'a') as f_object:
+                    writer_object = csv.writer(f_object)
+                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": SET FREQ and AMP: "+str(amp_switch)])
+                title_print=1
+            if counter< 5:                  # Change if you want more time for this
+                # Choosing Frequencies (Hz)
+                freq1 = random.choice([ele for ele in freq_list if ele != edge_freq])
+                freq2 = random.choice([ele for ele in freq_list if ele != edge_freq])
+                freq3 = random.choice([ele for ele in freq_list if ele != edge_freq])
+                freq4 = random.choice([ele for ele in freq_list if ele != edge_freq])
+                freq5 = random.choice([ele for ele in freq_list if ele != edge_freq])
+
+            else:
+                counter=-1
+                amp_switch+=1
+                title_print=0
+                if amp_switch > 2:
+                    switch_count+=1
+                    amp_switch=0
+
+        # Next case is going up the freq ladder and down
+        elif switch_count==2:
             if title_print==0:
                 # Available frequencies (Hz)
                 freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()
                 counter = 0
                 switch_time = 5     # Reducing switch time to get a good transition
-                
-                with open(filepath, 'a') as f_object:
-                    writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP FREQ and AMP: "+str(amp_switch)])
-                title_print=1
-            
-            if counter< len(freq_list):  
-                if freq_switch == 0:               
-                    freq1 = freq_list[counter]
-                    freq2 = set_freq[1]
-                    freq3 = set_freq[2]
-                    freq4 = set_freq[3]
-                    freq5 = set_freq[4]
-                elif freq_switch == 1:               
-                    freq1 = set_freq[0]
-                    freq2 = freq_list[counter]
-                    freq3 = set_freq[2]
-                    freq4 = set_freq[3]
-                    freq5 = set_freq[4]
-                elif freq_switch == 2:               
-                    freq1 = set_freq[0]
-                    freq2 = set_freq[1]
-                    freq3 = freq_list[counter]
-                    freq4 = set_freq[3]
-                    freq5 = set_freq[4]
-                elif freq_switch == 3:               
-                    freq1 = set_freq[0]
-                    freq2 = set_freq[1]
-                    freq3 = set_freq[2]
-                    freq4 = freq_list[counter]
-                    freq5 = set_freq[4]
-                elif freq_switch == 4:               
-                    freq1 = set_freq[0]
-                    freq2 = set_freq[1]
-                    freq3 = set_freq[2]
-                    freq4 = set_freq[3]
-                    freq5 = freq_list[counter]
-                counter+=1
-            else:
-                counter=-1
-                amp_switch+=1
-                title_print=0
-                if amp_switch > 2:
-                    freq_switch+=1
-                    if freq_switch > 4:
-                        switch_count+=1
-                        amp_switch=0
-        # Next case is going down the freq ladder 
-        elif switch_count==1:
-            if title_print==0:
-                # Available frequencies (Hz)
-                freq_list = np.arange(start = end_freq, stop = start_freq, step = step_freq).tolist()
-                counter = 0
-                switch_time = 5     # Reducing switch time to get a good transition
-                
-                with open(filepath, 'a') as f_object:
-                    writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP FREQ and AMP: "+str(amp_switch)])
-                title_print=1
-            
-            if counter< len(freq_list):  
-                if freq_switch == 0:               
-                    freq1 = freq_list[counter]
-                    freq2 = set_freq[1]
-                    freq3 = set_freq[2]
-                    freq4 = set_freq[3]
-                    freq5 = set_freq[4]
-                elif freq_switch == 1:               
-                    freq1 = set_freq[0]
-                    freq2 = freq_list[counter]
-                    freq3 = set_freq[2]
-                    freq4 = set_freq[3]
-                    freq5 = set_freq[4]
-                elif freq_switch == 2:               
-                    freq1 = set_freq[0]
-                    freq2 = set_freq[1]
-                    freq3 = freq_list[counter]
-                    freq4 = set_freq[3]
-                    freq5 = set_freq[4]
-                elif freq_switch == 3:               
-                    freq1 = set_freq[0]
-                    freq2 = set_freq[1]
-                    freq3 = set_freq[2]
-                    freq4 = freq_list[counter]
-                    freq5 = set_freq[4]
-                elif freq_switch == 4:               
-                    freq1 = set_freq[0]
-                    freq2 = set_freq[1]
-                    freq3 = set_freq[2]
-                    freq4 = set_freq[3]
-                    freq5 = freq_list[counter]
-                counter+=1
-            else:
-                counter=-1
-                amp_switch+=1
-                title_print=0
-                if amp_switch > 2:
-                    freq_switch+=1
-                    if freq_switch > 4:
-                        switch_count+=1
-                        amp_switch=0
+                up = 1
 
+                with open(filepath, 'a') as f_object:
+                    writer_object = csv.writer(f_object)
+                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP AND DOWN FREQ and AMP: "+str(amp_switch)])
+                title_print=1
+            
+            if counter< len(freq_list):  
+                if freq_switch == 0:               
+                    freq1 = freq_list[counter]
+                    freq2 = set_freq[1]
+                    freq3 = set_freq[2]
+                    freq4 = set_freq[3]
+                    freq5 = set_freq[4]
+                elif freq_switch == 1:               
+                    freq1 = set_freq[0]
+                    freq2 = freq_list[counter]
+                    freq3 = set_freq[2]
+                    freq4 = set_freq[3]
+                    freq5 = set_freq[4]
+                elif freq_switch == 2:               
+                    freq1 = set_freq[0]
+                    freq2 = set_freq[1]
+                    freq3 = freq_list[counter]
+                    freq4 = set_freq[3]
+                    freq5 = set_freq[4]
+                elif freq_switch == 3:               
+                    freq1 = set_freq[0]
+                    freq2 = set_freq[1]
+                    freq3 = set_freq[2]
+                    freq4 = freq_list[counter]
+                    freq5 = set_freq[4]
+                elif freq_switch == 4:               
+                    freq1 = set_freq[0]
+                    freq2 = set_freq[1]
+                    freq3 = set_freq[2]
+                    freq4 = set_freq[3]
+                    freq5 = freq_list[counter]
+            else:
+                if up == 1:
+                    counter=-1
+                    up = 0
+                    freq_list = np.arange(start = end_freq, stop = start_freq, step = step_freq).tolist()
+                elif up == 0:
+                    counter=-1
+                    amp_switch+=1
+                    title_print=0
+                    up = 1
+                    if amp_switch > 2:
+                        freq_switch+=1
+                        if freq_switch > 4:
+                            switch_count=0
+                            amp_switch=0
         
-
         # Counter to change test sets
         counter+=1
 
