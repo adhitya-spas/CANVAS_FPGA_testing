@@ -4,8 +4,8 @@ import numpy as np
 import random
 from readFPGA import twos_complement_to_hex, proper_twos_complement
 amp = 0.9*pow(2,15)   # V
-freq = 40800  # Hz
-phase = 0   # deg
+freq = 33000  # Hz
+phase = 5   # deg
 pi = 3.14
 
 t = range(0,65536)
@@ -27,7 +27,7 @@ for num in x_random:
     x_hex.append(proper_twos_complement(num))
 
 # Print into text file
-file_signal = open('Inputs/signal_'+str(freq)+'_NAU.txt','w')
+file_signal = open('Inputs/signal_'+str(freq)+'_full.txt','w')
 for b in x_hex:
     file_signal.write(str(b) + "\n")
 file_signal.close()

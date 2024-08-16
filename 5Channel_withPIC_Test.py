@@ -91,15 +91,15 @@ if fromFile:
     freq3 = "24khz" # broken
     freq4 = "33khz"
 
-    file0 = inputs+amp+"_amp_"+freq0+'.txt'
+    file0 = inputs+'signal_512.txt'
 
-    file1 = inputs+amp+"_amp_"+freq1+'.txt'
+    file1 = inputs+'signal_3000.txt'
     
-    file2 = inputs+amp+"_amp_"+freq2+'.txt'
+    file2 = inputs+'signal_10000.txt'
     
     file3 = inputs+'signal_23000.txt'
     
-    file4 = inputs+amp+"_amp_"+freq4+'.txt'
+    file4 = inputs+'signal_33000.txt'
     
     file_only_0 = inputs+'signal_0.txt'
 
@@ -110,17 +110,17 @@ if fromFile:
     david_file3 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_4c.txt"
     david_file4 = "C:/Users/culair/CANVAS_git/CANVAS_FPGA_testing/tests_for_david/test_"+david_test_no+"/signal_5c.txt"
 
-    # file0 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
-    # file1 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
-    # file2 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
-    # file3 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
-    # file4 = "D:\CANVAS_work\Canvas-Algorithm\Canvas_FPGA\Inputs\dummy_one.txt"
+    m_file0 = "C:/Users/culair/Documents/CANVAS/CANVAS_FPGA_testing/Inputs/8800/signal_1.txt"
+    m_file1 = "C:/Users/culair/Documents/CANVAS/CANVAS_FPGA_testing/Inputs/8800/signal_2.txt"
+    m_file2 = "C:/Users/culair/Documents/CANVAS/CANVAS_FPGA_testing/Inputs/8800/signal_3.txt"
+    m_file3 = "C:/Users/culair/Documents/CANVAS/CANVAS_FPGA_testing/Inputs/8800/signal_4.txt"
+    m_file4 = "C:/Users/culair/Documents/CANVAS/CANVAS_FPGA_testing/Inputs/8800/signal_5.txt"
 
-    channels0_td = read_FPGA_input(david_file0,signed=True,show_plots=False)
-    channels1_td = read_FPGA_input(david_file1,signed=True,show_plots=False)
-    channels2_td = read_FPGA_input(david_file2,signed=True,show_plots=False)
-    channels3_td = read_FPGA_input(david_file0,signed=True,show_plots=False)
-    channels4_td = read_FPGA_input(david_file4,signed=True,show_plots=False)
+    channels0_td = read_FPGA_input(m_file0,signed=True,show_plots=False)
+    channels1_td = read_FPGA_input(m_file1,signed=True,show_plots=False)
+    channels2_td = read_FPGA_input(m_file2,signed=True,show_plots=False)
+    channels3_td = read_FPGA_input(m_file3,signed=True,show_plots=False)
+    channels4_td = read_FPGA_input(m_file4,signed=True,show_plots=False)
 
 else:
     channels0_td = test_signal(fs, sample_len, signal_freq0, amp0, shift=shift0, channel_num=0, show_plots=False, save_output='both')
@@ -144,16 +144,16 @@ test3 = channels3_td[0:num_samples]
 test4 = channels4_td[0:num_samples]
 
 #initialize serial ports
-pic_ser = serial.Serial("COM10",115200)
-pic_ser1 = serial.Serial("COM9",115200)
-pic_ser2 = serial.Serial("COM4",115200)
-FPGA_ser = serial.Serial("COM7",115200) #Uncomment later
+pic_ser =  serial.Serial("COM4",115200)
+pic_ser1 = serial.Serial("COM5",115200)
+pic_ser2 = serial.Serial("COM6",115200)
+# FPGA_ser = serial.Serial("COM7",115200) #Uncomment later
 
 # testmode = ADC_And_Rotation
 
 #reset FPGA
 Siesta_cmd = b'\xC0\x51\xE5\x7A'
-ser_write(FPGA_ser,Sync_Pat+Siesta_cmd,False)
+# ser_write(FPGA_ser,Sync_Pat+Siesta_cmd,False)
 
 #reset PIC
 ser_write(pic_ser,ResetPIC+lf,True)
@@ -169,9 +169,9 @@ time.sleep(1)
 response_check(pic_ser2,initiated)
 print('PIC2 Reset')
 
-FPGA_ser.close()  #Uncomment later
+# FPGA_ser.close()  #Uncomment later
 time.sleep(0.5)   #Uncomment later
-FPGA_ser.open()   #Uncomment later
+# FPGA_ser.open()   #Uncomment later
 
 #response_check(pic_ser,ack)
 #print('Reset Received')
@@ -278,7 +278,7 @@ spec_core = b'\x01'
 
 time.sleep(3)
 Siesta_cmd = b'\xC0\x51\xE5\x7A'
-ser_write(FPGA_ser,Sync_Pat+Siesta_cmd,False)
+# ser_write(FPGA_ser,Sync_Pat+Siesta_cmd,False)
 time.sleep(4)
 Testmuxselect_cmd = b'\x7E\xF4'
 Tm_adc1 = b'\x00\x01'  # data works but toggle weird
@@ -307,11 +307,11 @@ Tm_Fifo_Read_Ch5= b'\x00\x34'
 # ser_write(FPGA_ser,Sync_Pat+Testmuxselect_cmd+Tm_Fifo_Read_Ch1,False) #Keeps changing
 # time.sleep(1)
 Fiio_cmd = b'\xF1\x10\x80\x00'
-ser_write(FPGA_ser,Sync_Pat+Fiio_cmd,False)
+# ser_write(FPGA_ser,Sync_Pat+Fiio_cmd,False)
 # time.sleep(1)
 print('FPGA Configured')
 Codeload_cmd = b'\xC0\xDE\x10\xAD'
-ser_write(FPGA_ser,Sync_Pat+Codeload_cmd,False)
+# ser_write(FPGA_ser,Sync_Pat+Codeload_cmd,False)
 print('FPGA Started')
 
 out_folder = 'HW-output'
@@ -327,7 +327,7 @@ date_time = now.strftime("_%m%d%Y_%H%M%S")
 # vals = readFPGA(FPGA_ser,readcon=readcon,num_read=num,outpath=out_folder+'/5-ch'+'/verify'+'/'+amp+'FPGA-' + FPGA_rev + amp + phase + f + '_iter' + date_time)
 ############ For timing the Packets
 
-vals = readFPGA(FPGA_ser, freq0, freq1, freq2, freq3, freq4,readcon=readcon,num_read=num,outpath=out_folder+'/5-ch'+'/verify'+'/'+amp+'FPGA-' + FPGA_rev + '_iter' + date_time , time_CCSDS=True, byte_type=2)
+# vals = readFPGA(FPGA_ser, freq0, freq1, freq2, freq3, freq4,readcon=readcon,num_read=num,outpath=out_folder+'/5-ch'+'/verify'+'/'+amp+'FPGA-' + FPGA_rev + '_iter' + date_time , time_CCSDS=True, byte_type=2)
 print("Packets saved")
 
 # outpath='HW-output/5-ch/read_all'        

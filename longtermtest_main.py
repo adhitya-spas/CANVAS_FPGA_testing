@@ -29,7 +29,7 @@ sine = "sine"
 # --------------------------------------------------------------------------------------------------
 ### MACROS for Testing (1 -> True, 0 -> False)
 FIXED_FREQ  = 2                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change
-FIXED_AMP   = 2                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude
+FIXED_AMP   = 0                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude
 FIXED_PHASE = 0                 # Set to 1 if you want to set phase || Set to 0 if you want random phase
 
 RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n" || Set to 0 if you want raw data
@@ -42,13 +42,14 @@ set_freq    = [512, 3000, 10000, 23000, 33000]     # [Ch1, Ch2, Ch3, Ch4, Ch5] |
 
 hi_amp      = 80* 10**-3     #Vpp    # max amplitude of VHDL sims (27345)
 mid_amp     = 10* 10**-3     #Vpp
-low_amp     = 4*  10**-3      #Vpp
+low_amp     = 4*  10**-3     #Vpp
+step_amp    = 1*  10**-3     #Vpp   
 set_amp     = [low_amp, low_amp, low_amp, low_amp, low_amp]      # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED AMP, line 100
 
 start_phase = 0         # deg
 end_phase   = 180       # deg
 step_phase  = 1         # deg
-set_phase   = [0, 0, 0, 0, 0]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED PHASE, line 110
+set_phase   = [0, 3, 6, 73, 16]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED PHASE, line 110
 
 switch_time = 20        # seconds
 switch_count= 0         # A counter for FIXED_FREQ=2; when to switch between testing sets 
@@ -62,6 +63,9 @@ freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tol
 
 # Frequencies in No-No list (Edge cases) (Hz)
 edge_freq = [192, 320, 448, 576, 704, 832, 960, 1088, 1216, 1344, 1472, 1600, 1728, 1856, 1984, 2112, 2240, 2368, 2496, 2752, 3008, 3264, 3520, 3776, 4032, 4288, 4544, 4800, 5056, 5568, 6080, 6592, 7104, 7616, 8128, 8640, 9152, 9664, 10688, 11712, 12736, 13760, 14784, 15808, 16832, 17856, 18880, 19904, 21952, 24000, 26048, 28096, 30144, 32192, 34240, 36288, 38336, 42432]
+
+# Phases in No-No list (Do not want typical cases) (deg)
+no_no_phase = [0, 45, 90, 135, 180]
 
 # Change if communication error
 # pic1_COM    = "COM4"
@@ -246,7 +250,7 @@ while(True):
     ## Random Amplitude Generator
     if FIXED_AMP == 0:
         # Available Amplitudes
-        amp_list = [hi_amp, mid_amp, low_amp]
+        amp_list = np.arange(start = low_amp, stop = hi_amp, step = step_amp).tolist()
         
         # Choosing Amplitudes (Vpp)
         amp1 = random.choice(amp_list)
@@ -270,11 +274,11 @@ while(True):
         phase_list = np.arange(start = start_phase, stop = end_phase, step = step_phase).tolist()
 
         # Choosing Phase (deg)
-        phase1 = random.choice(phase_list)
-        phase2 = random.choice(phase_list)
-        phase3 = random.choice(phase_list)
-        phase4 = random.choice(phase_list)
-        phase5 = random.choice(phase_list)
+        phase1 = random.choice([ele for ele in phase_list if ele != no_no_phase])
+        phase2 = random.choice([ele for ele in phase_list if ele != no_no_phase])
+        phase3 = random.choice([ele for ele in phase_list if ele != no_no_phase])
+        phase4 = random.choice([ele for ele in phase_list if ele != no_no_phase])
+        phase5 = random.choice([ele for ele in phase_list if ele != no_no_phase])
 
     if FIXED_PHASE == 1:
         # Manually set phase in Line 46
