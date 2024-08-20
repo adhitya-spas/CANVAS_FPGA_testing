@@ -29,7 +29,7 @@ sine = "sine"
 # --------------------------------------------------------------------------------------------------
 ### MACROS for Testing (1 -> True, 0 -> False)
 FIXED_FREQ  = 2                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change
-FIXED_AMP   = 0                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude
+FIXED_AMP   = 2                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude
 FIXED_PHASE = 0                 # Set to 1 if you want to set phase || Set to 0 if you want random phase
 
 RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n" || Set to 0 if you want raw data
@@ -51,7 +51,7 @@ end_phase   = 180       # deg
 step_phase  = 1         # deg
 set_phase   = [0, 3, 6, 73, 16]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED PHASE, line 110
 
-switch_time = 20        # seconds
+switch_time = 10        # seconds
 switch_count= 0         # A counter for FIXED_FREQ=2; when to switch between testing sets 
 counter     = 0         # A counter for FIXED_FREQ=2; when to stop each set
 title_print = 0         # A check to print the title of the test set in logs
@@ -118,9 +118,10 @@ while(True):
             if title_print==0:
                 with open(filepath, 'a') as f_object:
                     writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": SET FREQ and AMP: "+str(amp_switch)])
+                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": PRESET FREQ & AMP ("+str(amp_switch+1)+"/3)"])
                 title_print=1
-            if counter< 5:                  # Change if you want more time for this
+                FIXED_AMP = 2               # Forcing AMP to be fixed
+            if counter< 3:                  # Change if you want more time for this
                 freq1 = set_freq[0]
                 freq2 = set_freq[1]
                 freq3 = set_freq[2]
@@ -139,8 +140,9 @@ while(True):
             if title_print==0:
                 with open(filepath, 'a') as f_object:
                     writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": SET FREQ and AMP: "+str(amp_switch)])
+                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": RND FREQ and AMP "])
                 title_print=1
+                FIXED_AMP = 0               # Forcing AMP to be fixed random
             if counter< 5:                  # Change if you want more time for this
                 # Choosing Frequencies (Hz)
                 freq1 = random.choice([ele for ele in freq_list if ele != edge_freq])
@@ -153,7 +155,7 @@ while(True):
                 counter=-1
                 amp_switch+=1
                 title_print=0
-                if amp_switch > 2:
+                if amp_switch > 0:
                     switch_count+=1
                     amp_switch=0
 
@@ -290,6 +292,8 @@ while(True):
 
 
     ## Writing Values into log file - printing frequency and amplitude
+    with open(filepath, 'a') as f_object:
+        writer_object = csv.writer(f_object)
         writer_object.writerow([""])
         writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "","","", "FREQ", str(freq1), str(freq2), str(freq3), str(freq4), str(freq5)])
         writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "","","", "AMP", str(amp1), str(amp2), str(amp3), str(amp4), str(amp5)])
@@ -321,6 +325,7 @@ while(True):
     SG2025_1.write("*idn?") 
 
     # Configure to output sine wave
+    time.sleep(0.8)
     print("Setting up Channel 1")
     SG2025_1.write("C1:BSWV WVTP,SINE")
     SG2025_1.write("C1:BSWV FRQ,",str(freq1))
@@ -329,11 +334,12 @@ while(True):
     SG2025_1.write("C1:OUTP ON")
     print("\t : COMPLETED")
 
+    time.sleep(0.8)
     print("Setting up Channel 2")
     SG2025_1.write("C2:BSWV WVTP,SINE")
     SG2025_1.write("C2:BSWV FRQ,",str(freq2))
-    SG2025_1.write("C2:BSWV AMP,",str(amp1))
-    SG2025_1.write("C2:BSWV PHSE,",str(phase1))
+    SG2025_1.write("C2:BSWV AMP,",str(amp2))
+    SG2025_1.write("C2:BSWV PHSE,",str(phase2))
     SG2025_1.write("C2:OUTP ON")
     print("\t : COMPLETED")
 
@@ -347,6 +353,7 @@ while(True):
     SG2025_2.write("*idn?") 
 
     # Configure to output sine wave
+    time.sleep(0.8)
     print("Setting up Channel 3")
     SG2025_2.write("C1:BSWV WVTP,SINE")
     SG2025_2.write("C1:BSWV FRQ,",str(freq3))
@@ -355,6 +362,7 @@ while(True):
     SG2025_2.write("C1:OUTP ON")
     print("\t : COMPLETED")
 
+    time.sleep(0.8)
     print("Setting up Channel 4")
     SG2025_2.write("C2:BSWV WVTP,SINE")
     SG2025_2.write("C2:BSWV FRQ,",str(freq4))
@@ -373,6 +381,7 @@ while(True):
     SG2025_3.write("*idn?") 
 
     # Configure to output sine wave
+    time.sleep(0.8)
     print("Setting up Channel 5")
     SG2025_3.write("C1:BSWV WVTP,SINE")
     SG2025_3.write("C1:BSWV FRQ,",str(freq5))
@@ -385,7 +394,7 @@ while(True):
     ## Writing Confirmation into Log File
     with open(filepath, 'a') as f_object:
         writer_object = csv.writer(f_object)
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M"), "", "", "", "", "", "", "", "", "", "", "SIGNAL GENERATORS ARE SETUP"])
+        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "", "", "", "", "", "", "", "", "", "SIGNAL GENERATORS ARE SETUP"])
 
     # --------------------------------------------------------------------------------------------------
     ### FPGA and PIC controls
