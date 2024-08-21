@@ -251,15 +251,25 @@ while(True):
 
     ## Random Amplitude Generator
     if FIXED_AMP == 0:
+
         # Available Amplitudes
         amp_list = np.arange(start = low_amp, stop = hi_amp, step = step_amp).tolist()
         
-        # Choosing Amplitudes (Vpp)
-        amp1 = random.choice(amp_list)
-        amp2 = random.choice(amp_list)
-        amp3 = random.choice(amp_list)
-        amp4 = random.choice(amp_list)
-        amp5 = random.choice(amp_list)
+	if switch_count == 2:
+		if counter == -1:
+			# Choosing Amplitudes (Vpp)
+        		amp1 = random.choice(amp_list)
+        		amp2 = random.choice(amp_list)
+        		amp3 = random.choice(amp_list)
+        		amp4 = random.choice(amp_list)
+        		amp5 = random.choice(amp_list)
+	else:
+        	# Choosing Amplitudes (Vpp)
+        	amp1 = random.choice(amp_list)
+        	amp2 = random.choice(amp_list)
+        	amp3 = random.choice(amp_list)
+        	amp4 = random.choice(amp_list)
+        	amp5 = random.choice(amp_list)
 
     if FIXED_AMP == 1:
         # Manually set amplitude in Line 41
