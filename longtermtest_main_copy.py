@@ -52,14 +52,14 @@ end_phase   = 180       # deg
 step_phase  = 1         # deg
 set_phase   = [0, 32, 46, 73, 16]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED PHASE, line 110
 
-switch_time = 10        # seconds
+switch_time = 60        # seconds (prev 10 sec)
 switch_count= 0         # A counter for FIXED_FREQ=2; when to switch between testing sets 
 counter     = 0         # A counter for FIXED_FREQ=2; when to stop each set
 title_print = 0         # A check to print the title of the test set in logs
 amp_switch  = 0         # 0-> Low | 1-> Mid | 2-> High
 freq_switch = 0         # 0-> Ch 1 | 1-> Ch 2 | 2-> Ch 3 | 3-> Ch 4 | 4-> Ch 5 |
 
-epoch_start = datetime.datetime(2000, 1, 1, 0, 0)   #Start epoch date
+epoch_start = datetime.datetime(1999, 12, 31, 17, 0, 0)   #Start epoch date
 
 # Available frequencies (Hz)
 freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()
