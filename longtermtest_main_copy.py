@@ -8,6 +8,7 @@ import os
 import csv
 import random
 import numpy as np
+import datetime
 
 # Third-party libraries
 import pyvisa
@@ -58,6 +59,8 @@ title_print = 0         # A check to print the title of the test set in logs
 amp_switch  = 0         # 0-> Low | 1-> Mid | 2-> High
 freq_switch = 0         # 0-> Ch 1 | 1-> Ch 2 | 2-> Ch 3 | 3-> Ch 4 | 4-> Ch 5 |
 
+epoch_start = datetime.datetime(2000, 1, 1, 0, 0)   #Start epoch date
+
 # Available frequencies (Hz)
 freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()
 
@@ -86,8 +89,8 @@ filepath = "./log_data/" + dateString + "longlog_" + str(loop_no) +".csv"
 ## Creating csv file - printing header
 with open(filepath, 'a') as f_object:
     writer_object = csv.writer(f_object)
-    writer_object.writerow(["Long Term Testing Log File","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
-    writer_object.writerow(["Time","","","","","Param", "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Message"])
+    writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
+    writer_object.writerow(["Time","EPOCH","","","","","Param", "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Message"])
 
 # --------------------------------------------------------------------------------------------------
 while(True):
@@ -121,7 +124,7 @@ while(True):
             if title_print==0:
                 with open(filepath, 'a') as f_object:
                     writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": PRESET FREQ & AMP ("+str(amp_switch+1)+"/3)"])
+                    writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": PRESET FREQ & AMP ("+str(amp_switch+1)+"/3)"])
                 title_print=1
                 FIXED_AMP = 2               # Forcing AMP to be fixed
             if counter< 3:                  # Change if you want more time for this
@@ -143,7 +146,7 @@ while(True):
             if title_print==0:
                 with open(filepath, 'a') as f_object:
                     writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": RND FREQ and AMP "])
+                    writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": RND FREQ and AMP "])
                 title_print=1 
                 FIXED_AMP = 0
             if counter< 5:    
@@ -179,7 +182,7 @@ while(True):
                     freq_list = np.arange(start = end_freq, stop = start_freq, step = -100).tolist()
                 with open(filepath, 'a') as f_object:
                     writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP AND DOWN FREQ and AMP: "+str(amp_switch)])
+                    writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP AND DOWN FREQ and AMP: "+str(amp_switch)])
                 title_print=1
                 FIXED_AMP = 0
             
@@ -237,8 +240,8 @@ while(True):
                                 ## Creating csv file - printing header
                                 with open(filepath, 'a') as f_object:
                                     writer_object = csv.writer(f_object)
-                                    writer_object.writerow(["Long Term Testing Log File","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
-                                    writer_object.writerow(["Time","","","","","Param", "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Message"])
+                                    writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
+                                    writer_object.writerow(["Time","EPOCH","","","","","Param", "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Message"])
 
         
         # Counter to change test sets
@@ -327,9 +330,9 @@ while(True):
     with open(filepath, 'a') as f_object:
         writer_object = csv.writer(f_object)
         #writer_object.writerow([""])
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "","","", "FREQ", str(freq1), str(freq2), str(freq3), str(freq4), str(freq5)])
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "","","", "AMP", str(amp1), str(amp2), str(amp3), str(amp4), str(amp5)])
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "","","", "PHASE", str(phase1), str(phase2), str(phase3), str(phase4), str(phase5)])
+        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "FREQ", str(freq1), str(freq2), str(freq3), str(freq4), str(freq5)])
+        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "AMP", str(amp1), str(amp2), str(amp3), str(amp4), str(amp5)])
+        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "PHASE", str(phase1), str(phase2), str(phase3), str(phase4), str(phase5)])
 
     #--------------------------------------------------------------------------------------------------
     ## Starting Signal Generator
@@ -441,7 +444,7 @@ while(True):
     ## Writing Confirmation into Log File
     with open(filepath, 'a') as f_object:
         writer_object = csv.writer(f_object)
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "", "", "", "", "", "", "", "", "", "SIGNAL GENERATORS ARE SETUP"])
+        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),"", "", "", "", "", "", "", "", "", "", "", "SIGNAL GENERATORS ARE SETUP"])
 
     #--------------------------------------------------------------------------------------------------
     ## FPGA and PIC controls
