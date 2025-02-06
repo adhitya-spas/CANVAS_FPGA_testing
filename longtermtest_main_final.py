@@ -29,7 +29,7 @@ sine = "sine"
 
 # --------------------------------------------------------------------------------------------------
 ### MACROS for Testing (1 -> True, 0 -> False)
-FIXED_FREQ  = 1                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change (with an ordered change, overwrites FIXED_AMP)
+FIXED_FREQ  = 0#2                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change (with an ordered change, overwrites FIXED_AMP)
 FIXED_AMP   = 2                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude || Set to 2 if you want a step-wise amplitude change
 FIXED_PHASE = 0                 # Set to 1 if you want to set phase || Set to 0 if you want random phase
 
@@ -72,6 +72,7 @@ counter_a   = 0         # A counter for FIXEWD_AMP=2; to switch between differen
 title_print = 0         # A check to print the title of the test set in logs
 amp_switch  = 0         # 0-> Low | 1-> Mid | 2-> High
 freq_switch = 0         # 0-> Ch 1 | 1-> Ch 2 | 2-> Ch 3 | 3-> Ch 4 | 4-> Ch 5 |
+message     = ""
 
 epoch_start = datetime.datetime(1999, 12, 31, 17, 0, 0)   #Start epoch date
 
@@ -103,12 +104,12 @@ filepath = "./log_data/" + dateString + "longlog_" + str(loop_no) +".csv"
 ## Creating csv file - printing header
 with open(filepath, 'a') as f_object:
     writer_object = csv.writer(f_object)
-    writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
-    writer_object.writerow(["Time","EPOCH","","","","","Param", "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Message"])
+    # writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
+    writer_object.writerow(["Time", "EPOCH", "Ch1_FREQ", "Ch1_AMP_gen_out", "Ch1_AMP_board_in", "Ch1_AMP_scale_ratio", "Ch1_PHASE", "Ch2_FREQ", "Ch2_AMP_gen_out", "Ch2_AMP_board_in", "Ch2_AMP_scale_ratio", "Ch2_PHASE", "Ch3_FREQ", "Ch3_AMP_gen_out", "Ch3_AMP_board_in", "Ch3_AMP_scale_ratio", "Ch3_PHASE", "Ch4_FREQ", "Ch4_AMP_gen_out", "Ch4_AMP_board_in", "Ch4_AMP_scale_ratio", "Ch4_PHASE", "Ch5_FREQ", "Ch5_AMP_gen_out", "Ch5_AMP_board_in", "Ch5_AMP_scale_ratio", "Ch5_PHASE", "Message"])
 
 # --------------------------------------------------------------------------------------------------
 while(True):
-
+    message = "SIGNAL GENERATORS ARE SETUP"
     if FIXED_AMP == 2:
         if counter_a< 3:                  # Change if you want more time for this
             if amp_switch==0:
@@ -143,9 +144,10 @@ while(True):
         # Start with first preset frequency as defined in Line 41 set_freq
         if switch_count==0:         
             if title_print==0:
-                with open(filepath, 'a') as f_object:
-                    writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": PRESET FREQ & AMP ("+str(amp_switch+1)+"/3)"])
+                # with open(filepath, 'a') as f_object:
+                #     writer_object = csv.writer(f_object)
+                #     writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": PRESET FREQ & AMP ("+str(amp_switch+1)+"/3)"])
+                message = "STARTING TEST SET "+str(switch_count+1)+": PRESET FREQ & AMP ("+str(amp_switch+1)+"/3)"
                 title_print=1
                 FIXED_AMP = 2               # Forcing AMP to be fixed
             if counter< 3:                  # Change if you want more time for this
@@ -165,9 +167,10 @@ while(True):
         # Second, run random frequencies for a while
         elif switch_count==1:         
             if title_print==0:
-                with open(filepath, 'a') as f_object:
-                    writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": RND FREQ and AMP "])
+                # with open(filepath, 'a') as f_object:
+                #     writer_object = csv.writer(f_object)
+                #     writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": RND FREQ and AMP "])
+                message = "STARTING TEST SET "+str(switch_count+1)+": RND FREQ and AMP "
                 title_print=1 
                 FIXED_AMP = 0
             if counter< 5:    
@@ -201,9 +204,10 @@ while(True):
                     counter=0
                     up = 1
                     freq_list = np.arange(start = end_freq, stop = start_freq, step = -100).tolist()
-                with open(filepath, 'a') as f_object:
-                    writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP AND DOWN FREQ and AMP: "+str(amp_switch)])
+                # with open(filepath, 'a') as f_object:
+                #     writer_object = csv.writer(f_object)
+                #     writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP AND DOWN FREQ and AMP: "+str(amp_switch)])
+                message = "STARTING TEST SET "+str(switch_count+1)+": STEP UP AND DOWN FREQ and AMP: "+str(amp_switch)
                 title_print=1
                 FIXED_AMP = 0
             
@@ -261,9 +265,8 @@ while(True):
                                 ## Creating csv file - printing header
                                 with open(filepath, 'a') as f_object:
                                     writer_object = csv.writer(f_object)
-                                    writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
-                                    writer_object.writerow(["Time","EPOCH","","","","","Param", "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Message"])
-
+                                    # writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
+                                    writer_object.writerow(["Time", "EPOCH", "Ch1_FREQ", "Ch1_AMP_gen_out", "Ch1_AMP_board_in", "Ch1_AMP_scale_ratio", "Ch1_PHASE", "Ch2_FREQ", "Ch2_AMP_gen_out", "Ch2_AMP_board_in", "Ch2_AMP_scale_ratio", "Ch2_PHASE", "Ch3_FREQ", "Ch3_AMP_gen_out", "Ch3_AMP_board_in", "Ch3_AMP_scale_ratio", "Ch3_PHASE", "Ch4_FREQ", "Ch4_AMP_gen_out", "Ch4_AMP_board_in", "Ch4_AMP_scale_ratio", "Ch4_PHASE", "Ch5_FREQ", "Ch5_AMP_gen_out", "Ch5_AMP_board_in", "Ch5_AMP_scale_ratio", "Ch5_PHASE", "Message"])
         
         # Counter to change test sets
         counter+=1
@@ -346,15 +349,46 @@ while(True):
         phase4 = set_phase[3]
         phase5 = set_phase[4]
 
+    ## Amplitude calculations
+    b_in_amp1 = amp1/10
+    b_in_amp2 = amp2/10
+    b_in_amp3 = amp3
+    b_in_amp4 = amp4
+    b_in_amp5 = amp5
+
+    sr_amp1 = amp1/(60*(10**-3))
+    sr_amp2 = amp2/(60*(10**-3))
+    sr_amp3 = amp3/(1.5)
+    sr_amp4 = amp4/(1.5)
+    sr_amp5 = amp5/(1.5)
 
     ## Writing Values into log file - printing frequency and amplitude
     with open(filepath, 'a') as f_object:
         writer_object = csv.writer(f_object)
         #writer_object.writerow([""])
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "FREQ", str(freq1), str(freq2), str(freq3), str(freq4), str(freq5)])
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "AMP", str(amp1), str(amp2), str(amp3), str(amp4), str(amp5)])
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "PHASE", str(phase1), str(phase2), str(phase3), str(phase4), str(phase5)])
-
+        # writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), str(freq1), str(freq2), str(freq3), str(freq4), str(freq5)])
+        # writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "AMP", str(amp1), str(amp2), str(amp3), str(amp4), str(amp5)])
+        # writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "PHASE", str(phase1), str(phase2), str(phase3), str(phase4), str(phase5)])
+        writer_object.writerow([
+            time.strftime("%Y-%m-%d_%H%M%S"), 
+            str((datetime.datetime.now() - epoch_start).total_seconds()),
+            str(freq1),
+            str(amp1), str(b_in_amp1), str(sr_amp1),
+            str(phase1),
+            str(freq2),
+            str(amp2), str(b_in_amp2), str(sr_amp2),
+            str(phase2),
+            str(freq3),
+            str(amp3), str(b_in_amp3), str(sr_amp3),
+            str(phase3),
+            str(freq4),
+            str(amp4), str(b_in_amp4), str(sr_amp4),
+            str(phase4),
+            str(freq5),
+            str(amp5), str(b_in_amp5), str(sr_amp5),
+            str(phase5),
+            message
+        ]) 
     #--------------------------------------------------------------------------------------------------
     ## Starting Signal Generator
 
@@ -463,9 +497,11 @@ while(True):
     print("\n Signal Generators Setup")
 
     ## Writing Confirmation into Log File
-    with open(filepath, 'a') as f_object:
-        writer_object = csv.writer(f_object)
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),"", "", "", "", "", "", "", "", "", "", "", "SIGNAL GENERATORS ARE SETUP"])
+    # with open(filepath, 'a') as f_object:
+    #     writer_object = csv.writer(f_object)
+    #     writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),"", "", "", "", "", "", "", "", "", "", "", "SIGNAL GENERATORS ARE SETUP"])
+    # message = "SIGNAL GENERATORS ARE SETUP"
+
 
     #--------------------------------------------------------------------------------------------------
     ## FPGA and PIC controls
