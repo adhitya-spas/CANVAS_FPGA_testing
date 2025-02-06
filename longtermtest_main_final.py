@@ -8,6 +8,7 @@ import os
 import csv
 import random
 import numpy as np
+import datetime
 
 # Third-party libraries
 import pyvisa
@@ -17,20 +18,20 @@ import pathlib
 from longtermtest_FPGA import init_FPGA, reset_PIC_FPGA, config_FPGA
 # from serialfcns import readFPGA, ser_write, response_check
 
-Ch1 = "Ch1"
-Ch2 = "Ch2"
-Ch3 = "Ch3"
-Ch4 = "Ch4"
-Ch5 = "Ch5"
+Ch1 = "Ch1" #EF1
+Ch2 = "Ch2" #EF2
+Ch3 = "Ch3" #BF1
+Ch4 = "Ch4" #BF2
+Ch5 = "Ch5" #BF3
 All = "All"
 
 sine = "sine"
 
 # --------------------------------------------------------------------------------------------------
 ### MACROS for Testing (1 -> True, 0 -> False)
-FIXED_FREQ  = 1#2                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change
-FIXED_AMP   = 1#2                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude
-FIXED_PHASE = 1#0                 # Set to 1 if you want to set phase || Set to 0 if you want random phase
+FIXED_FREQ  = 1                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change (with an ordered change, overwrites FIXED_AMP)
+FIXED_AMP   = 2                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude || Set to 2 if you want a step-wise amplitude change
+FIXED_PHASE = 0                 # Set to 1 if you want to set phase || Set to 0 if you want random phase
 
 RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n" || Set to 0 if you want raw data
 # --------------------------------------------------------------------------------------------------
@@ -38,25 +39,41 @@ RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n" |
 start_freq  = 192       # Hz
 end_freq    = 42432     # Hz
 step_freq   = 1         # Hz
-set_freq    = [512, 3000, 10000, 23000, 33000]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED FREQ, line 75
+set_freq    = [512, 512, 10000, 10000, 10000]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED FREQ, line 75
 
-hi_amp      = 80* 10**-3     #Vpp    # max amplitude of VHDL sims (27345)
-mid_amp     = 10* 10**-3     #Vpp
-low_amp     = 4*  10**-3     #Vpp
-step_amp    = 1*  10**-3     #Vpp   
-set_amp     = [low_amp, low_amp, low_amp, low_amp, low_amp]      # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED AMP, line 100
+# hi_amp      = 60* 10**-3     #Vpp    # max amplitude of VHDL sims (27345)
+# mid_amp     = 10* 10**-3     #Vpp
+# low_amp     = 4*  10**-3     #Vpp
+# step_amp    = 1*  10**-3     #Vpp   
+# set_amp     = [low_amp, low_amp, low_amp, low_amp, low_amp]      # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED AMP, line 100
+
+# Splitting Amplitude ranges into BF and EF ranges
+hi_amp_bf      = 1200* 10**-3     #Vpp 
+mid_amp_bf     = 600*   10**-3     #Vpp
+low_amp_bf     = 15*    10**-3     #Vpp
+step_amp_bf    = 21*    10**-3     #Vpp   
+
+hi_amp_ef      = 60* 10**-3     #Vpp 
+mid_amp_ef     = 10* 10**-3     #Vpp
+low_amp_ef     = 4*  10**-3     #Vpp
+step_amp_ef    = 1*  10**-3     #Vpp   
+
+set_amp     = [low_amp_ef, low_amp_ef, low_amp_bf, low_amp_bf, low_amp_bf]      # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED AMP, line 100
 
 start_phase = 0         # deg
 end_phase   = 180       # deg
 step_phase  = 1         # deg
 set_phase   = [0, 32, 46, 73, 16]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED PHASE, line 110
 
-switch_time = 10        # seconds
+switch_time = 10        # seconds (prev 10 sec)
 switch_count= 0         # A counter for FIXED_FREQ=2; when to switch between testing sets 
 counter     = 0         # A counter for FIXED_FREQ=2; when to stop each set
+counter_a   = 0         # A counter for FIXEWD_AMP=2; to switch between different amplitudes
 title_print = 0         # A check to print the title of the test set in logs
 amp_switch  = 0         # 0-> Low | 1-> Mid | 2-> High
 freq_switch = 0         # 0-> Ch 1 | 1-> Ch 2 | 2-> Ch 3 | 3-> Ch 4 | 4-> Ch 5 |
+
+epoch_start = datetime.datetime(1999, 12, 31, 17, 0, 0)   #Start epoch date
 
 # Available frequencies (Hz)
 freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()
@@ -67,6 +84,8 @@ edge_freq = [192, 320, 448, 576, 704, 832, 960, 1088, 1216, 1344, 1472, 1600, 17
 # Phases in No-No list (Do not want typical cases) (deg)
 no_no_phase = [0, 45, 90, 135, 180]
 
+loop_no = 1
+prev_amp_switch = -1
 # Change if communication error
 # pic1_COM    = "COM4"
 # pic2_COM    = "COM10"
@@ -78,36 +97,44 @@ no_no_phase = [0, 45, 90, 135, 180]
 
 ## Making file name
 dateString = time.strftime("%Y-%m-%d_%H%M")
-filepath = "./log_data/" + dateString + "longlog.csv"
+filepath = "./log_data/" + dateString + "longlog_" + str(loop_no) +".csv"
+#filepath = "CANVAS_git/CANVAS_FPGA_testing/log_data/" + dateString + "longlog_" + str(loop_no) +".csv"
 
 ## Creating csv file - printing header
 with open(filepath, 'a') as f_object:
     writer_object = csv.writer(f_object)
-    writer_object.writerow(["Long Term Testing Log File","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
-    writer_object.writerow(["Time","","","","","Param", "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Message"])
+    writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
+    writer_object.writerow(["Time","EPOCH","","","","","Param", "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Message"])
 
 # --------------------------------------------------------------------------------------------------
 while(True):
 
     if FIXED_AMP == 2:
-        if amp_switch==0:
-            amp1 = low_amp
-            amp2 = low_amp
-            amp3 = low_amp
-            amp4 = low_amp
-            amp5 = low_amp
-        elif amp_switch==1:
-            amp1 = mid_amp
-            amp2 = mid_amp
-            amp3 = mid_amp
-            amp4 = mid_amp
-            amp5 = mid_amp
-        elif amp_switch==2:
-            amp1 = hi_amp
-            amp2 = hi_amp
-            amp3 = hi_amp
-            amp4 = hi_amp
-            amp5 = hi_amp
+        if counter_a< 3:                  # Change if you want more time for this
+            if amp_switch==0:
+                amp1 = low_amp_ef
+                amp2 = low_amp_ef
+                amp3 = low_amp_bf
+                amp4 = low_amp_bf
+                amp5 = low_amp_bf
+            elif amp_switch==1:
+                amp1 = mid_amp_ef
+                amp2 = mid_amp_ef
+                amp3 = mid_amp_bf
+                amp4 = mid_amp_bf
+                amp5 = mid_amp_bf
+            elif amp_switch==2:
+                amp1 = hi_amp_ef
+                amp2 = hi_amp_ef
+                amp3 = hi_amp_bf
+                amp4 = hi_amp_bf
+                amp5 = hi_amp_bf
+        else:
+            counter_a=0
+            amp_switch+=1
+            if amp_switch > 2:
+                amp_switch=0
+        counter_a+=1
 
     ### Transition between Different Frequency Changes
     if FIXED_FREQ == 2:
@@ -118,7 +145,7 @@ while(True):
             if title_print==0:
                 with open(filepath, 'a') as f_object:
                     writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": PRESET FREQ & AMP ("+str(amp_switch+1)+"/3)"])
+                    writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": PRESET FREQ & AMP ("+str(amp_switch+1)+"/3)"])
                 title_print=1
                 FIXED_AMP = 2               # Forcing AMP to be fixed
             if counter< 3:                  # Change if you want more time for this
@@ -140,16 +167,18 @@ while(True):
             if title_print==0:
                 with open(filepath, 'a') as f_object:
                     writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": RND FREQ and AMP "])
-                title_print=1
-                FIXED_AMP = 0               # Forcing AMP to be fixed random
-            if counter< 5:                  # Change if you want more time for this
+                    writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": RND FREQ and AMP "])
+                title_print=1 
+                FIXED_AMP = 0
+            if counter< 5:    
+                # Available frequencies (Hz)
+                freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()              # Change if you want more time for this
                 # Choosing Frequencies (Hz)
                 freq1 = random.choice([ele for ele in freq_list if ele != edge_freq])
-                freq2 = random.choice([ele for ele in freq_list if ele != edge_freq])
+                freq2 = freq1
                 freq3 = random.choice([ele for ele in freq_list if ele != edge_freq])
-                freq4 = random.choice([ele for ele in freq_list if ele != edge_freq])
-                freq5 = random.choice([ele for ele in freq_list if ele != edge_freq])
+                freq4 = freq3
+                freq5 = random.choice([freq1,freq3])
 
             else:
                 counter=-1
@@ -158,67 +187,83 @@ while(True):
                 if amp_switch > 0:
                     switch_count+=1
                     amp_switch=0
+                    up = 0
 
         # Next case is going up the freq ladder and down
         elif switch_count==2:
             if title_print==0:
-                # Available frequencies (Hz)
-                freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()
-                counter = 0
-                switch_time = 5     # Reducing switch time to get a good transition
-                up = 1
-
+                switch_time = 10     # Reducing switch time to get a good transition
+                if up == 0:
+                    counter=0
+                    up = 0
+                    freq_list = np.arange(start = start_freq, stop = end_freq, step = 100).tolist()
+                if up == 1:
+                    counter=0
+                    up = 1
+                    freq_list = np.arange(start = end_freq, stop = start_freq, step = -100).tolist()
                 with open(filepath, 'a') as f_object:
                     writer_object = csv.writer(f_object)
-                    writer_object.writerow(["","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP AND DOWN FREQ and AMP: "+str(amp_switch)])
+                    writer_object.writerow(["","","","","","","", "", "", "", "", "", "STARTING TEST SET "+str(switch_count+1)+": STEP UP AND DOWN FREQ and AMP: "+str(amp_switch)])
                 title_print=1
+                FIXED_AMP = 0
             
             if counter< len(freq_list):  
                 if freq_switch == 0:               
                     freq1 = freq_list[counter]
-                    freq2 = set_freq[1]
+                    freq2 = freq1
                     freq3 = set_freq[2]
                     freq4 = set_freq[3]
                     freq5 = set_freq[4]
+                # elif freq_switch == 1:               
+                #     freq1 = set_freq[0]
+                #     freq2 = freq_list[counter]
+                #     freq3 = set_freq[2]
+                #     freq4 = set_freq[3]
+                #     freq5 = set_freq[4]
                 elif freq_switch == 1:               
-                    freq1 = set_freq[0]
-                    freq2 = freq_list[counter]
-                    freq3 = set_freq[2]
-                    freq4 = set_freq[3]
-                    freq5 = set_freq[4]
-                elif freq_switch == 2:               
                     freq1 = set_freq[0]
                     freq2 = set_freq[1]
                     freq3 = freq_list[counter]
-                    freq4 = set_freq[3]
+                    freq4 = freq3
                     freq5 = set_freq[4]
-                elif freq_switch == 3:               
-                    freq1 = set_freq[0]
-                    freq2 = set_freq[1]
-                    freq3 = set_freq[2]
-                    freq4 = freq_list[counter]
-                    freq5 = set_freq[4]
-                elif freq_switch == 4:               
+                # elif freq_switch == 3:               
+                #     freq1 = set_freq[0]
+                #     freq2 = set_freq[1]
+                #     freq3 = set_freq[2]
+                #     freq4 = freq_list[counter]
+                #     freq5 = set_freq[4]
+                elif freq_switch == 2:               
                     freq1 = set_freq[0]
                     freq2 = set_freq[1]
                     freq3 = set_freq[2]
                     freq4 = set_freq[3]
                     freq5 = freq_list[counter]
             else:
-                if up == 1:
+                if up == 0:
                     counter=-1
-                    up = 0
-                    freq_list = np.arange(start = end_freq, stop = start_freq, step = step_freq).tolist()
-                elif up == 0:
+                    up = 1
+                    #freq_list = np.arange(start = end_freq, stop = start_freq, step = 100).tolist()
+                    title_print=0
+                elif up == 1:
                     counter=-1
                     amp_switch+=1
                     title_print=0
-                    up = 1
+                    up = 0
                     if amp_switch > 2:
                         freq_switch+=1
-                        if freq_switch > 4:
+                        if freq_switch > 2:
                             switch_count=0
                             amp_switch=0
+                            loop_no += 1
+                            filepath = "./log_data/" + dateString + "longlog_" + str(loop_no) +".csv"
+                            #filepath = "CANVAS_git/CANVAS_FPGA_testing/log_data/" + dateString + "longlog_" + str(loop_no) +".csv"
+                            if loop_no % 3 == 0:
+                                ## Creating csv file - printing header
+                                with open(filepath, 'a') as f_object:
+                                    writer_object = csv.writer(f_object)
+                                    writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
+                                    writer_object.writerow(["Time","EPOCH","","","","","Param", "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Message"])
+
         
         # Counter to change test sets
         counter+=1
@@ -253,23 +298,24 @@ while(True):
     if FIXED_AMP == 0:
 
         # Available Amplitudes
-        amp_list = np.arange(start = low_amp, stop = hi_amp, step = step_amp).tolist()
+        amp_list_bf = np.arange(start = low_amp_bf, stop = hi_amp_bf, step = step_amp_bf).tolist()
+        amp_list_ef = np.arange(start = low_amp_ef, stop = hi_amp_ef, step = step_amp_ef).tolist()
         
         if switch_count == 2:
-            if counter == -1:
+            if prev_amp_switch != amp_switch:
                 # Choosing Amplitudes (Vpp)
-                amp1 = random.choice(amp_list)
-                amp2 = random.choice(amp_list)
-                amp3 = random.choice(amp_list)
-                amp4 = random.choice(amp_list)
-                amp5 = random.choice(amp_list)
-            else:
-                # Choosing Amplitudes (Vpp)
-                amp1 = random.choice(amp_list)
-                amp2 = random.choice(amp_list)
-                amp3 = random.choice(amp_list)
-                amp4 = random.choice(amp_list)
-                amp5 = random.choice(amp_list)
+                amp1 = random.choice(amp_list_ef)
+                amp2 = random.choice(amp_list_ef)
+                amp3 = random.choice(amp_list_bf)
+                amp4 = random.choice(amp_list_bf)
+                amp5 = random.choice(amp_list_bf)
+        else:                                  
+            # Choosing Amplitudes (Vpp)
+            amp1 = random.choice(amp_list_ef)
+            amp2 = random.choice(amp_list_ef)
+            amp3 = random.choice(amp_list_bf)
+            amp4 = random.choice(amp_list_bf)
+            amp5 = random.choice(amp_list_bf)
 
     if FIXED_AMP == 1:
         # Manually set amplitude in Line 41
@@ -304,15 +350,15 @@ while(True):
     ## Writing Values into log file - printing frequency and amplitude
     with open(filepath, 'a') as f_object:
         writer_object = csv.writer(f_object)
-        writer_object.writerow([""])
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "","","", "FREQ", str(freq1), str(freq2), str(freq3), str(freq4), str(freq5)])
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "","","", "AMP", str(amp1), str(amp2), str(amp3), str(amp4), str(amp5)])
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "","","", "PHASE", str(phase1), str(phase2), str(phase3), str(phase4), str(phase5)])
+        #writer_object.writerow([""])
+        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "FREQ", str(freq1), str(freq2), str(freq3), str(freq4), str(freq5)])
+        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "AMP", str(amp1), str(amp2), str(amp3), str(amp4), str(amp5)])
+        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "PHASE", str(phase1), str(phase2), str(phase3), str(phase4), str(phase5)])
 
-    # --------------------------------------------------------------------------------------------------
-    ### Starting Signal Generator
+    #--------------------------------------------------------------------------------------------------
+    ## Starting Signal Generator
 
-    ## Initialize resource manager
+    # Initialize resource manager
     rm = pyvisa.ResourceManager()
 
     # List all connected resources
@@ -419,30 +465,33 @@ while(True):
     ## Writing Confirmation into Log File
     with open(filepath, 'a') as f_object:
         writer_object = csv.writer(f_object)
-        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"), "", "", "", "", "", "", "", "", "", "", "SIGNAL GENERATORS ARE SETUP"])
+        writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),"", "", "", "", "", "", "", "", "", "", "", "SIGNAL GENERATORS ARE SETUP"])
 
-    # --------------------------------------------------------------------------------------------------
-    ### FPGA and PIC controls
+    #--------------------------------------------------------------------------------------------------
+    ## FPGA and PIC controls
 
-    ## Initialising FPGA - define COM ports in DEFINE line 51
-    # FPGA_ser = init_FPGA(FPGA_COM)
+    # Initialising FPGA - define COM ports in DEFINE line 51
+    #FPGA_ser = init_FPGA(FPGA_COM)
 
-    ## Reset PIC and FPGA
-    # FPGA_ser = reset_FPGA(FPGA_ser)
+    # Reset PIC and FPGA
+    #FPGA_ser = reset_FPGA(FPGA_ser)
 
-    ## Buffering? ????????
-    # ???????
+    # Buffering? ????????
+    #???????
 
-    ## Writing Confirmation of FPGA starting
-    # with open(filepath, 'a') as f_object:
-    #     writer_object = csv.writer(f_object)
-    #     writer_object.writerow([time.strftime("%Y-%m-%d_%H%M"), "", "", "", "", "", "", "", "", "", "", "PIC & FPGA Initialized - STARTING FPGA"])
+    # Writing Confirmation of FPGA starting
+    #with open(filepath, 'a') as f_object:
+    #    writer_object = csv.writer(f_object)
+    #    writer_object.writerow([time.strftime("%Y-%m-%d_%H%M"), "", "", "", "", "", "", "", "", "", "", "PIC & FPGA Initialized - STARTING FPGA"])
 
-    ## Start FPGA
-    # config_FPGA(FPGA_ser, freq1, freq2, freq3, freq4, freq5, time.strftime("%Y-%m-%d_%H%M"), RAW_DATA)
+    # Start FPGA
+    #config_FPGA(FPGA_ser, freq1, freq2, freq3, freq4, freq5, time.strftime("%Y-%m-%d_%H%M"), RAW_DATA)
 
-    # --------------------------------------------------------------------------------------------------
-    ### Wait time for next signal transition
+    #--------------------------------------------------------------------------------------------------
+    ## Wait time for next signal transition
     time.sleep(switch_time)     # switch_time can be set up in the MACRO SECTION in Line 53
+    #with open(filepath, 'a') as f_object:
+    #    writer_object = csv.writer(f_object)
+    #    writer_object.writerow(["","","","","","", "", "", "", "", "", "Sswitch_time "+str(switch_time)])
 
 # SG2025_1.write("C1:OUTP OFF")
