@@ -8,8 +8,7 @@ import os
 import csv
 import random
 import numpy as np
-#import datetime
-from datetime import datetime, timedelta, timezone
+import datetime
 
 # Third-party libraries
 import pyvisa
@@ -17,7 +16,6 @@ import pathlib
 
 # Custom libraries
 from longtermtest_FPGA import init_FPGA, reset_PIC_FPGA, config_FPGA
-from Shutdown_Signal_Generator import shutdown_cmd
 # from serialfcns import readFPGA, ser_write, response_check
 
 Ch1 = "Ch1" #EF1
@@ -31,9 +29,9 @@ sine = "sine"
 
 # --------------------------------------------------------------------------------------------------
 ### MACROS for Testing (1 -> True, 0 -> False)
-FIXED_FREQ  = 1#2                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change (with an ordered change, overwrites FIXED_AMP)
+FIXED_FREQ  = 0#2                 # Set to 1 if you want to set frequencies || Set to 0 if you want random frequencies || Set to 2 if you want a step-wise frequency change (with an ordered change, overwrites FIXED_AMP)
 FIXED_AMP   = 2                 # Set to 1 if you want to set amplitude || Set to 0 if you want random amplitude || Set to 2 if you want a step-wise amplitude change
-FIXED_PHASE = 1                 # Set to 1 if you want to set phase || Set to 0 if you want random phase
+FIXED_PHASE = 0                 # Set to 1 if you want to set phase || Set to 0 if you want random phase
 
 RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n" || Set to 0 if you want raw data
 # --------------------------------------------------------------------------------------------------
@@ -41,7 +39,7 @@ RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n" |
 start_freq  = 192       # Hz
 end_freq    = 42432     # Hz
 step_freq   = 1         # Hz
-set_freq    = [512, 512, 512, 512, 512, 512]    # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED FREQ, line 75
+set_freq    = [512, 512, 10000, 10000, 10000]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED FREQ, line 75
 
 # hi_amp      = 60* 10**-3     #Vpp    # max amplitude of VHDL sims (27345)
 # mid_amp     = 10* 10**-3     #Vpp
@@ -53,7 +51,7 @@ set_freq    = [512, 512, 512, 512, 512, 512]    # [Ch1, Ch2, Ch3, Ch4, Ch5] || F
 hi_amp_bf      = 1200* 10**-3     #Vpp 
 mid_amp_bf     = 600*   10**-3     #Vpp
 low_amp_bf     = 15*    10**-3     #Vpp
-step_amp_bf    = 22*    10**-3     #Vpp   
+step_amp_bf    = 21*    10**-3     #Vpp   
 
 hi_amp_ef      = 60* 10**-3     #Vpp 
 mid_amp_ef     = 10* 10**-3     #Vpp
@@ -67,7 +65,7 @@ end_phase   = 180       # deg
 step_phase  = 1         # deg
 set_phase   = [0, 32, 46, 73, 16]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED PHASE, line 110
 
-switch_time = 10        # seconds (prev 10 sec)
+switch_time = 60        # seconds (prev 10 sec)
 switch_count= 0         # A counter for FIXED_FREQ=2; when to switch between testing sets 
 counter     = 0         # A counter for FIXED_FREQ=2; when to stop each set
 counter_a   = 0         # A counter for FIXEWD_AMP=2; to switch between different amplitudes
@@ -75,17 +73,11 @@ title_print = 0         # A check to print the title of the test set in logs
 amp_switch  = 0         # 0-> Low | 1-> Mid | 2-> High
 freq_switch = 0         # 0-> Ch 1 | 1-> Ch 2 | 2-> Ch 3 | 3-> Ch 4 | 4-> Ch 5 |
 message     = ""
-systicks    = 0
 
-epoch_start = datetime(1999, 12, 31, 17, 0, 0)   #Start epoch date
-utc_start   = datetime(1999, 12, 31, 23, 0, 0)   #Start utc date
-start_datetime = datetime.now()
+epoch_start = datetime.datetime(1999, 12, 31, 17, 0, 0)   #Start epoch date
+
 # Available frequencies (Hz)
 freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()
-
-# Available Amplitudes (Vpp)
-bf_amp_list = np.arange(start =low_amp_bf, stop = hi_amp_bf, step = step_amp_bf).tolist()
-ef_amp_list = np.arange(start =low_amp_ef, stop = hi_amp_ef, step = step_amp_ef).tolist()
 
 # Frequencies in No-No list (Edge cases) (Hz)
 edge_freq = [192, 320, 448, 576, 704, 832, 960, 1088, 1216, 1344, 1472, 1600, 1728, 1856, 1984, 2112, 2240, 2368, 2496, 2752, 3008, 3264, 3520, 3776, 4032, 4288, 4544, 4800, 5056, 5568, 6080, 6592, 7104, 7616, 8128, 8640, 9152, 9664, 10688, 11712, 12736, 13760, 14784, 15808, 16832, 17856, 18880, 19904, 21952, 24000, 26048, 28096, 30144, 32192, 34240, 36288, 38336, 42432]
@@ -113,21 +105,37 @@ filepath = "./log_data/" + dateString + "longlog_" + str(loop_no) +".csv"
 with open(filepath, 'a') as f_object:
     writer_object = csv.writer(f_object)
     # writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
-    writer_object.writerow(["UTC Time", "MT Time", "EPOCH", "Ch1_FREQ", "Ch1_AMP_gen_out", "Ch1_AMP_board_in", "Ch1_AMP_scale_ratio", "Ch1_PHASE", "Ch2_FREQ", "Ch2_AMP_gen_out", "Ch2_AMP_board_in", "Ch2_AMP_scale_ratio", "Ch2_PHASE", "Ch3_FREQ", "Ch3_AMP_gen_out", "Ch3_AMP_board_in", "Ch3_AMP_scale_ratio", "Ch3_PHASE", "Ch4_FREQ", "Ch4_AMP_gen_out", "Ch4_AMP_board_in", "Ch4_AMP_scale_ratio", "Ch4_PHASE", "Ch5_FREQ", "Ch5_AMP_gen_out", "Ch5_AMP_board_in", "Ch5_AMP_scale_ratio", "Ch5_PHASE", "Message"])
+    writer_object.writerow(["Time", "EPOCH", "Ch1_FREQ", "Ch1_AMP_gen_out", "Ch1_AMP_board_in", "Ch1_AMP_scale_ratio", "Ch1_PHASE", "Ch2_FREQ", "Ch2_AMP_gen_out", "Ch2_AMP_board_in", "Ch2_AMP_scale_ratio", "Ch2_PHASE", "Ch3_FREQ", "Ch3_AMP_gen_out", "Ch3_AMP_board_in", "Ch3_AMP_scale_ratio", "Ch3_PHASE", "Ch4_FREQ", "Ch4_AMP_gen_out", "Ch4_AMP_board_in", "Ch4_AMP_scale_ratio", "Ch4_PHASE", "Ch5_FREQ", "Ch5_AMP_gen_out", "Ch5_AMP_board_in", "Ch5_AMP_scale_ratio", "Ch5_PHASE", "Message"])
 
 # --------------------------------------------------------------------------------------------------
 while(True):
     message = "SIGNAL GENERATORS ARE SETUP"
     if FIXED_AMP == 2:
-        amp1=ef_amp_list[counter_a]
-        amp2=ef_amp_list[counter_a]
-        amp3=bf_amp_list[counter_a]
-        amp4=bf_amp_list[counter_a]
-        amp5=bf_amp_list[counter_a]
-
+        if counter_a< 3:                  # Change if you want more time for this
+            if amp_switch==0:
+                amp1 = low_amp_ef
+                amp2 = low_amp_ef
+                amp3 = low_amp_bf
+                amp4 = low_amp_bf
+                amp5 = low_amp_bf
+            elif amp_switch==1:
+                amp1 = mid_amp_ef
+                amp2 = mid_amp_ef
+                amp3 = mid_amp_bf
+                amp4 = mid_amp_bf
+                amp5 = mid_amp_bf
+            elif amp_switch==2:
+                amp1 = hi_amp_ef
+                amp2 = hi_amp_ef
+                amp3 = hi_amp_bf
+                amp4 = hi_amp_bf
+                amp5 = hi_amp_bf
+        else:
+            counter_a=0
+            amp_switch+=1
+            if amp_switch > 2:
+                FIXED_AMP = 0
         counter_a+=1
-    if counter_a>len(bf_amp_list)-1:
-        counter_a = 0
 
     ### Transition between Different Frequency Changes
     if FIXED_FREQ == 2:
@@ -258,7 +266,7 @@ while(True):
                                 with open(filepath, 'a') as f_object:
                                     writer_object = csv.writer(f_object)
                                     # writer_object.writerow(["Long Term Testing Log File","","","","-",time.strftime("%Y-%m-%d_%H%M%S")])
-                                    writer_object.writerow(["UTC_Time", "MT_Time", "EPOCH", "Ch1_FREQ", "Ch1_AMP_gen_out", "Ch1_AMP_board_in", "Ch1_AMP_scale_ratio", "Ch1_PHASE", "Ch2_FREQ", "Ch2_AMP_gen_out", "Ch2_AMP_board_in", "Ch2_AMP_scale_ratio", "Ch2_PHASE", "Ch3_FREQ", "Ch3_AMP_gen_out", "Ch3_AMP_board_in", "Ch3_AMP_scale_ratio", "Ch3_PHASE", "Ch4_FREQ", "Ch4_AMP_gen_out", "Ch4_AMP_board_in", "Ch4_AMP_scale_ratio", "Ch4_PHASE", "Ch5_FREQ", "Ch5_AMP_gen_out", "Ch5_AMP_board_in", "Ch5_AMP_scale_ratio", "Ch5_PHASE", "Message"])
+                                    writer_object.writerow(["Time", "EPOCH", "Ch1_FREQ", "Ch1_AMP_gen_out", "Ch1_AMP_board_in", "Ch1_AMP_scale_ratio", "Ch1_PHASE", "Ch2_FREQ", "Ch2_AMP_gen_out", "Ch2_AMP_board_in", "Ch2_AMP_scale_ratio", "Ch2_PHASE", "Ch3_FREQ", "Ch3_AMP_gen_out", "Ch3_AMP_board_in", "Ch3_AMP_scale_ratio", "Ch3_PHASE", "Ch4_FREQ", "Ch4_AMP_gen_out", "Ch4_AMP_board_in", "Ch4_AMP_scale_ratio", "Ch4_PHASE", "Ch5_FREQ", "Ch5_AMP_gen_out", "Ch5_AMP_board_in", "Ch5_AMP_scale_ratio", "Ch5_PHASE", "Message"])
         
         # Counter to change test sets
         counter+=1
@@ -362,9 +370,8 @@ while(True):
         # writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "AMP", str(amp1), str(amp2), str(amp3), str(amp4), str(amp5)])
         # writer_object.writerow([time.strftime("%Y-%m-%d_%H%M%S"),str((datetime.datetime.now() - epoch_start).total_seconds()), "", "","","", "PHASE", str(phase1), str(phase2), str(phase3), str(phase4), str(phase5)])
         writer_object.writerow([
-            datetime.now(timezone.utc).strftime("%Y-%m-%d_%H%M%S"),
             time.strftime("%Y-%m-%d_%H%M%S"), 
-            str((datetime.now() - epoch_start).total_seconds()),
+            str((datetime.datetime.now() - epoch_start).total_seconds()),
             str(freq1),
             str(amp1), str(b_in_amp1), str(sr_amp1),
             str(phase1),
@@ -386,7 +393,6 @@ while(True):
     ## Starting Signal Generator
 
     # Initialize resource manager
-
     rm = pyvisa.ResourceManager()
 
     # List all connected resources
@@ -523,10 +529,5 @@ while(True):
     #with open(filepath, 'a') as f_object:
     #    writer_object = csv.writer(f_object)
     #    writer_object.writerow(["","","","","","", "", "", "", "", "", "Sswitch_time "+str(switch_time)])
-    # systicks+=1
-    # if systicks>2000:
-    if datetime.now() >= (datetime.now() + timedelta(hours=4)):
-        shutdown_cmd()
-    
 
 # SG2025_1.write("C1:OUTP OFF")
