@@ -17,7 +17,7 @@ import pathlib
 
 # Custom libraries
 from longtermtest_FPGA import init_FPGA, reset_PIC_FPGA, config_FPGA
-#from Shutdown_Signal_Generator import shutdown_cmd
+from Shutdown_Signal_Generator import shutdown_cmd
 # from serialfcns import readFPGA, ser_write, response_check
 
 Ch1 = "Ch1" #EF1
@@ -469,7 +469,7 @@ while(True):
 
     # Initialize resource manager
 
-    #rm = pyvisa.ResourceManager()
+    rm = pyvisa.ResourceManager()
 
     # List all connected resources
     # print("Resources detected\n{}\n".format(rm.list_resources()))
@@ -484,91 +484,91 @@ while(True):
 
     ## Open Signal Generator 1 (The top of the stack)
     print("Setting up Signal Generator 1")
-    #SG2025_1 = rm.open_resource('USB0::0xF4ED::0xEE3A::SDG10GA2162677::INSTR') # confirm parameters
+    SG2025_1 = rm.open_resource('USB0::0xF4ED::0xEE3A::SDG10GA2162677::INSTR') # confirm parameters
 
     # Configure to measure DC current
-    #SG2025_1.write("*rst")
-    #SG2025_1.write("*idn?") 
+    SG2025_1.write("*rst")
+    SG2025_1.write("*idn?") 
 
     # Configure to output sine wave
     time.sleep(0.1)
     print("Setting up Channel 1")
-    #SG2025_1.write("C1:BSWV WVTP,SINE")
+    SG2025_1.write("C1:BSWV WVTP,SINE")
     time.sleep(0.1)
-    #SG2025_1.write("C1:BSWV FRQ,",str(freq1))
+    SG2025_1.write("C1:BSWV FRQ,",str(freq1))
     time.sleep(0.1)
-    #SG2025_1.write("C1:BSWV AMP,",str(amp1))
+    SG2025_1.write("C1:BSWV AMP,",str(amp1))
     time.sleep(0.1)
-    #SG2025_1.write("C1:BSWV PHSE,",str(phase1))
-    #SG2025_1.write("C1:OUTP ON")
+    SG2025_1.write("C1:BSWV PHSE,",str(phase1))
+    SG2025_1.write("C1:OUTP ON")
     print("\t : COMPLETED")
 
     time.sleep(0.1)
     print("Setting up Channel 2")
-    #SG2025_1.write("C2:BSWV WVTP,SINE")
+    SG2025_1.write("C2:BSWV WVTP,SINE")
     time.sleep(0.1)
-    #SG2025_1.write("C2:BSWV FRQ,",str(freq2))
+    SG2025_1.write("C2:BSWV FRQ,",str(freq2))
     time.sleep(0.1)
-    #SG2025_1.write("C2:BSWV AMP,",str(amp2))
+    SG2025_1.write("C2:BSWV AMP,",str(amp2))
     time.sleep(0.1)
-    #SG2025_1.write("C2:BSWV PHSE,",str(phase2))
-    #SG2025_1.write("C2:OUTP ON")
+    SG2025_1.write("C2:BSWV PHSE,",str(phase2
+    SG2025_1.write("C2:OUTP ON")
     print("\t : COMPLETED")
 
     
     ## Open Signal Generator 2 (In the middle of the stack)
     print("Setting up Signal Generator 2")
-    #SG2025_2 = rm.open_resource('USB0::0xF4ED::0xEE3A::SDG10GAQ1R1236::INSTR') # confirm parameters
+    SG2025_2 = rm.open_resource('USB0::0xF4ED::0xEE3A::SDG10GAQ1R1236::INSTR') # confirm parameters
 
     # Configure to measure DC current
-    #SG2025_2.write("*rst")
-    #SG2025_2.write("*idn?") 
+    SG2025_2.write("*rst")
+    SG2025_2.write("*idn?") 
 
     # Configure to output sine wave
     time.sleep(0.1)
     print("Setting up Channel 3")
-    #SG2025_2.write("C1:BSWV WVTP,SINE")
+    SG2025_2.write("C1:BSWV WVTP,SINE")
     time.sleep(0.1)
-    #SG2025_2.write("C1:BSWV FRQ,",str(freq3))
+    SG2025_2.write("C1:BSWV FRQ,",str(freq3))
     time.sleep(0.1)
-    #SG2025_2.write("C1:BSWV AMP,",str(amp3))
+    SG2025_2.write("C1:BSWV AMP,",str(amp3))
     time.sleep(0.1)
-    #SG2025_2.write("C1:BSWV PHSE,",str(phase3))
-    #SG2025_2.write("C1:OUTP ON")
+    SG2025_2.write("C1:BSWV PHSE,",str(phase3))
+    SG2025_2.write("C1:OUTP ON")
     print("\t : COMPLETED")
 
     time.sleep(0.1)
     print("Setting up Channel 4")
-    #SG2025_2.write("C2:BSWV WVTP,SINE")
+    SG2025_2.write("C2:BSWV WVTP,SINE")
     time.sleep(0.1)
-    #SG2025_2.write("C2:BSWV FRQ,",str(freq4))
+    SG2025_2.write("C2:BSWV FRQ,",str(freq4))
     time.sleep(0.1)
-    #SG2025_2.write("C2:BSWV AMP,",str(amp4))
+    SG2025_2.write("C2:BSWV AMP,",str(amp4))
     time.sleep(0.1)
-    #SG2025_2.write("C2:BSWV PHSE,",str(phase4))
-    #SG2025_2.write("C2:OUTP ON")
+    SG2025_2.write("C2:BSWV PHSE,",str(phase4))
+    SG2025_2.write("C2:OUTP ON")
     print("\t : COMPLETED")
 
 
     ## Open Signal Generator 3 (The bottom of the stack)
     print("Setting up Signal Generator 3")
-    #SG2025_3 = rm.open_resource('USB0::0xF4ED::0xEE3A::SDG10GAX1R0601::INSTR') # confirm parameters
+    SG2025_3 = rm.open_resource('USB0::0xF4ED::0xEE3A::SDG10GAX1R0601::INSTR') # confirm parameters
 
     # Configure to measure DC current
-    #SG2025_3.write("*rst")
-    #SG2025_3.write("*idn?") 
+    SG2025_3.write("*rst")
+    SG2025_3.write("*idn?") 
 
     # Configure to output sine wave
     time.sleep(0.1)
     print("Setting up Channel 5")
-    #SG2025_3.write("C1:BSWV WVTP,SINE")
+    SG2025_3.write("C1:BSWV WVTP,SINE")
     time.sleep(0.1)
-    #SG2025_3.write("C1:BSWV FRQ,",str(freq5))
+    SG2025_3.write("C1:BSWV FRQ,",str(freq5))
     time.sleep(0.1)
-    #SG2025_3.write("C1:BSWV AMP,",str(amp5))
+    SG2025_3.write("C1:BSWV AMP,",str(amp5))
     time.sleep(0.1)
-    #SG2025_3.write("C1:BSWV PHSE,",str(phase5))
-    #SG2025_3.write("C1:OUTP ON")
+    SG2025_3.write("C1:BSWV PHSE,",str(phase5))
+    SG2025_3.write("C1:OUTP ON")
     print("\t : COMPLETED")
     print("\n Signal Generators Setup")
 
@@ -607,8 +607,8 @@ while(True):
     #    writer_object.writerow(["","","","","","", "", "", "", "", "", "Sswitch_time "+str(switch_time)])
     # systicks+=1
     # if systicks>2000:
-    #if datetime.now() >= (start_datetime + timedelta(hours=4)):
-        #shutdown_cmd()
+    if datetime.now() >= (start_datetime + timedelta(hours=4)):
+        shutdown_cmd()
     
 
 # SG2025_1.write("C1:OUTP OFF")
