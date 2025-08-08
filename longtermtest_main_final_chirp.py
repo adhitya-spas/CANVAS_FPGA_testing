@@ -67,7 +67,7 @@ end_phase   = 180       # deg
 step_phase  = 1         # deg
 set_phase   = [0, 32, 46, 73, 16]     # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED PHASE, line 110
 
-switch_time = 0        # seconds (prev 10 sec)
+switch_time = 0.1      # seconds (prev 10 sec)
 switch_count= 0         # A counter for FIXED_FREQ=2; when to switch between testing sets 
 counter_f     = 0         # A counter for FIXED_FREQ=2; when to stop each set
 counter_a   = 0         # A counter for FIXEWD_AMP=2; to switch between different amplitudes
@@ -77,8 +77,8 @@ freq_switch = 0         # 0-> Ch 1 | 1-> Ch 2 | 2-> Ch 3 | 3-> Ch 4 | 4-> Ch 5 |
 message     = ""
 systicks    = 0
 
-epoch_start = datetime(1999, 12, 31, 17, 0, 0)   #Start epoch date
-utc_start   = datetime(1999, 12, 31, 23, 0, 0)   #Start utc date
+epoch_start = datetime(1999, 12, 31, 16, 0, 0)   #Start epoch date
+utc_start   = datetime(1999, 12, 31, 22, 0, 0)   #Start utc date
 start_datetime = datetime.now()
 # Available frequencies (Hz)
 freq_list = np.arange(start = start_freq, stop = end_freq, step = step_freq).tolist()
@@ -158,13 +158,17 @@ while(True):
     message = "SIGNAL GENERATORS ARE SETUP"
     
     ### For chirps of frequency (up) and every up, increment amplitude
-    if FIXED_AMP==3 & FIXED_FREQ ==3:
+    if FIXED_AMP==3 and FIXED_FREQ ==3:
         #reset
         if at_end == 1:
             counter_f = 0
             counter_a +=1
             if counter_a >= len(ef_amp_list):
                 counter_a = 0
+            if freq_switch < 3:
+                freq_switch += 1
+            else:
+                freq_switch = 0
             at_end = 0 
             
         #set freq    
@@ -208,7 +212,7 @@ while(True):
         amp5=bf_amp_list[counter_a]
 
         counter_a+=1
-    if counter_a>len(bf_amp_list)-1:
+    if counter_a>len(bf_amp_list)-2:
         counter_a = 0
 
     ### Transition between Different Frequency Changes
@@ -511,7 +515,7 @@ while(True):
     time.sleep(0.1)
     SG2025_1.write("C2:BSWV AMP,",str(amp2))
     time.sleep(0.1)
-    SG2025_1.write("C2:BSWV PHSE,",str(phase2
+    SG2025_1.write("C2:BSWV PHSE,",str(phase2))
     SG2025_1.write("C2:OUTP ON")
     print("\t : COMPLETED")
 
@@ -607,7 +611,7 @@ while(True):
     #    writer_object.writerow(["","","","","","", "", "", "", "", "", "Sswitch_time "+str(switch_time)])
     # systicks+=1
     # if systicks>2000:
-    if datetime.now() >= (start_datetime + timedelta(hours=4)):
+    if datetime.now() >= (start_datetime + timedelta(hours=16)):
         shutdown_cmd()
     
 
