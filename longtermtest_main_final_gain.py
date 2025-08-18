@@ -41,7 +41,7 @@ RAW_DATA    = 1                 # Set to 1 if you want packets saved with "\n" |
 start_freq  = 192       # Hz
 end_freq    = 42432     # Hz
 step_freq   = 1         # Hz
-set_freq    = [5120, 5120, 5120, 5120, 5120, 5120]    # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED FREQ, line 75
+set_freq    = [42430, 42430, 42430, 42430, 42430, 42430] # [5120, 5120, 5120, 5120, 5120, 5120]    # [Ch1, Ch2, Ch3, Ch4, Ch5] || FOR FIXED FREQ, line 75
 
 # hi_amp      = 60* 10**-3     #Vpp    # max amplitude of VHDL sims (27345)
 # mid_amp     = 10* 10**-3     #Vpp
@@ -564,5 +564,6 @@ while(True):
     if datetime.now() >= (datetime.now() + timedelta(hours=4)):
         shutdown_cmd()
     
+
 
 # SG2025_1.write("C1:OUTP OFF")
