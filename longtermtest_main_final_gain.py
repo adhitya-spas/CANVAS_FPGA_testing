@@ -79,7 +79,7 @@ freq_switch = 0         # 0-> Ch 1 | 1-> Ch 2 | 2-> Ch 3 | 3-> Ch 4 | 4-> Ch 5 |
 message     = ""
 systicks    = 0
 
-epoch_start = datetime(1999, 12, 31, 17, 0, 0)   #Start epoch date
+epoch_start = datetime(1999, 12, 31, 19, 0, 0)   #Start epoch date
 utc_start   = datetime(1999, 12, 31, 23, 0, 0)   #Start utc date
 start_datetime = datetime.now()
 # Available frequencies (Hz)
