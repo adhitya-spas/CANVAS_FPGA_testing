@@ -1,6 +1,6 @@
 @echo off
 
-:: CALL git pull
+CALL git pull
 REM Activate conda environment
 CALL "C:\Users\canmo\miniconda3\Scripts\activate.bat"
 CALL conda activate canalg_env
